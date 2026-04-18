@@ -107,13 +107,17 @@ def build_request_content(flow, title)
 
     - #{title}
 
-    ## Background
+    ## One-line Requirement
 
-    - 
+    - 必填：一句话描述你的需求
 
-    ## Scope
+    ## Details
 
-    - 
+    - 可选：详细说明；如果已经在附件里放了 PRD / 原型，这里可以跳过
+
+    ## Notes
+
+    - 选填：补充背景、限制、偏好、测试重点
 
     ## Attachments
 
@@ -162,9 +166,11 @@ def build_raw_readme
     - 原件可以保留，同时再放一份转写后的 `md`
     - 表格类信息建议整理成 `md` 表格或清晰文本摘要
 
-    建议放法：
+    建议填写方式：
 
-    - `request.md`：一句话需求、背景、测试目标
+    - `request.md > One-line Requirement`：必填，一句话描述你的需求
+    - `request.md > Details`：可选，详细说明；如果附件里已有 PRD，可留空
+    - `request.md > Notes`：选填，补充限制、偏好、测试重点
     - `attachments/*.md`：结构化原始资料
     - `attachments/*.html`：原型导出或网页文档
     - `attachments/images/*`：截图和视觉参考

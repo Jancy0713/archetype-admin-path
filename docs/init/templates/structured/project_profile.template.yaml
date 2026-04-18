@@ -75,10 +75,43 @@ stages:
         options: []
         reason: ""
     adaptive_questions: []
-    key_decisions: []
+    key_decisions:
+      # Example:
+      # - topic: ""
+      #   question: ""
+      #   explanation: ""
+      #   recommended: ""
+      #   options:
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #   allow_multiple: false
+      #   allow_custom_answer: true
+      #   default_if_no_answer: ""
+      #   must_confirm: true
+      []
     recommended_defaults: []
     open_questions:
-      p0: []
+      p0:
+        # Example:
+        # - topic: ""
+        #   question: ""
+        #   explanation: ""
+        #   recommended: ""
+        #   options:
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #   allow_multiple: false
+        #   allow_custom_answer: true
+        #   must_answer: true
+        []
       p1: []
       p2: []
   - stage_id: tenant_governance
@@ -125,10 +158,43 @@ stages:
         options: []
         reason: ""
     adaptive_questions: []
-    key_decisions: []
+    key_decisions:
+      # Example:
+      # - topic: ""
+      #   question: ""
+      #   explanation: ""
+      #   recommended: ""
+      #   options:
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #   allow_multiple: false
+      #   allow_custom_answer: true
+      #   default_if_no_answer: ""
+      #   must_confirm: true
+      []
     recommended_defaults: []
     open_questions:
-      p0: []
+      p0:
+        # Example:
+        # - topic: ""
+        #   question: ""
+        #   explanation: ""
+        #   recommended: ""
+        #   options:
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #   allow_multiple: false
+        #   allow_custom_answer: true
+        #   must_answer: true
+        []
       p1: []
       p2: []
   - stage_id: identity_access
@@ -180,10 +246,43 @@ stages:
         options: []
         reason: ""
     adaptive_questions: []
-    key_decisions: []
+    key_decisions:
+      # Example:
+      # - topic: ""
+      #   question: ""
+      #   explanation: ""
+      #   recommended: ""
+      #   options:
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #   allow_multiple: false
+      #   allow_custom_answer: true
+      #   default_if_no_answer: ""
+      #   must_confirm: true
+      []
     recommended_defaults: []
     open_questions:
-      p0: []
+      p0:
+        # Example:
+        # - topic: ""
+        #   question: ""
+        #   explanation: ""
+        #   recommended: ""
+        #   options:
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #   allow_multiple: false
+        #   allow_custom_answer: true
+        #   must_answer: true
+        []
       p1: []
       p2: []
   - stage_id: experience_platform
@@ -245,10 +344,43 @@ stages:
         options: []
         reason: ""
     adaptive_questions: []
-    key_decisions: []
+    key_decisions:
+      # Example:
+      # - topic: ""
+      #   question: ""
+      #   explanation: ""
+      #   recommended: ""
+      #   options:
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #     - value: ""
+      #       label: ""
+      #       description: ""
+      #   allow_multiple: false
+      #   allow_custom_answer: true
+      #   default_if_no_answer: ""
+      #   must_confirm: true
+      []
     recommended_defaults: []
     open_questions:
-      p0: []
+      p0:
+        # Example:
+        # - topic: ""
+        #   question: ""
+        #   explanation: ""
+        #   recommended: ""
+        #   options:
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #     - value: ""
+        #       label: ""
+        #       description: ""
+        #   allow_multiple: false
+        #   allow_custom_answer: true
+        #   must_answer: true
+        []
       p1: []
       p2: []
 decision:

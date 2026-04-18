@@ -23,6 +23,12 @@
 7. 关键决策放进当前阶段的 `key_decisions`，常规默认放进当前阶段的 `recommended_defaults`。
 8. 每个阶段的 `required_questions` 是固定题，不能缺漏。
 9. `adaptive_questions` 默认应为空，只有确有必要时才允许补 1-2 题。
+10. `key_decisions` 只保留真正需要人工拍板的问题，不要把已经足够明确的结论再问一遍。
+11. 如果 `required_questions` 已经覆盖了某项结论，除非存在真实歧义，否则不要再生成语义重复的 `key_decisions`。
+12. 没有安全默认值、且不回答就无法继续推进的问题，应进入 `open_questions.p0`。
+13. `key_decisions` 与 `open_questions.p0` 应优先给 2-5 个候选项；如果情况过多，应拆题，不要堆成超长选项列表。
+14. 候选项不需要硬凑成 3 个，2 个即可表达时直接给 2 个。
+15. 即使提供候选项，也要允许用户补充自定义答案。
 
 ## 阶段推进规则
 

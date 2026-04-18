@@ -10,6 +10,13 @@
 
 ## Init Flow
 
+### Run Input UX
+
+- [done] `raw/request.md` 已从 `Background / Scope` 改为 `One-line Requirement / Details / Notes`
+- [done] `create_run.rb` 已同步生成新的初始化输入模板
+- 待观察新的 `One-line Requirement / Details / Notes` 输入结构在真实测试中的填写成本
+- 如用户仍频繁漏填关键信息，再考虑加入更强的填写引导或示例
+
 ### 初始化题库补充
 
 - 补充 `project_profile` 四阶段的常见行业化补充题
@@ -27,4 +34,3 @@
 - 补充常用 PRD 问题清单
 - 补充更稳定的业务功能澄清题模板
 - 评估是否需要把高频 PRD 问题也做成可校验结构
-

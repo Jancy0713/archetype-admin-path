@@ -119,8 +119,23 @@ module InitFlow
         "recommended" => { type: :string, non_empty: true },
         "options" => { type: :array, item_schema: OPTION_SCHEMA },
         "allow_multiple" => { type: :boolean },
+        "allow_custom_answer" => { type: :boolean },
         "default_if_no_answer" => { type: :string },
         "must_confirm" => { type: :boolean },
+      },
+    }.freeze
+
+    OPEN_QUESTION_SCHEMA = {
+      type: :hash,
+      keys: {
+        "topic" => { type: :string, non_empty: true },
+        "question" => { type: :string, non_empty: true },
+        "explanation" => { type: :string, non_empty: true },
+        "recommended" => { type: :string },
+        "options" => { type: :array, item_schema: OPTION_SCHEMA },
+        "allow_multiple" => { type: :boolean },
+        "allow_custom_answer" => { type: :boolean },
+        "must_answer" => { type: :boolean },
       },
     }.freeze
 
@@ -140,9 +155,9 @@ module InitFlow
     OPEN_QUESTIONS_SCHEMA = {
       type: :hash,
       keys: {
-        "p0" => { type: :array, item_schema: { type: :string } },
-        "p1" => { type: :array, item_schema: { type: :string } },
-        "p2" => { type: :array, item_schema: { type: :string } },
+        "p0" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
+        "p1" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
+        "p2" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
       },
     }.freeze
 
@@ -512,6 +527,9 @@ module InitFlow
           errors << "#{label} must be an array"
           return
         end
+        if schema[:min_items] && value.length < schema[:min_items]
+          errors << "#{label} must contain at least #{schema[:min_items]} items"
+        end
         if schema[:max_items] && value.length > schema[:max_items]
           errors << "#{label} must contain at most #{schema[:max_items]} items"
         end
@@ -551,10 +569,12 @@ module InitFlow
         ensure_ready_flag_matches(errors, data, %w[stage_progress profile_ready], "stage_progress.profile_ready")
         validate_profile_stages(data, errors)
         validate_profile_stage_decisions(data, errors)
+        validate_profile_open_questions(data, errors)
       when "baseline"
         ensure_ready_flag_matches(errors, data, %w[decision baseline_confirmed], "decision.baseline_confirmed")
         block_on_p0(errors, data, %w[open_questions p0], %w[decision baseline_confirmed], "decision.baseline_confirmed")
         validate_decision_candidates(data, errors)
+        validate_open_questions(data["open_questions"] || {}, errors, prefix: "open_questions")
         validate_baseline_field_source_completeness(data, errors)
       when "change_request"
         ensure_ready_flag_matches(errors, data, %w[decision allow_update], "decision.allow_update")
@@ -781,10 +801,52 @@ module InitFlow
 
     def validate_decision_candidates(data, errors, prefix: "key_decisions")
       Array(data["key_decisions"]).each_with_index do |item, index|
-        option_values = Array(item["options"]).map { |option| option["value"] }
+        options = Array(item["options"])
+        option_values = options.map { |option| option["value"] }
+        if options.length < 2
+          errors << "#{prefix}.#{index}.options should contain at least 2 items"
+        elsif options.length > 5
+          errors << "#{prefix}.#{index}.options should contain at most 5 items; split the question if needed"
+        end
         errors << "#{prefix}.#{index}.recommended must match one of options.value" unless option_values.include?(item["recommended"])
         next if item["default_if_no_answer"].to_s.strip.empty?
         errors << "#{prefix}.#{index}.default_if_no_answer must match one of options.value" unless option_values.include?(item["default_if_no_answer"])
+      end
+    end
+
+    def validate_profile_open_questions(data, errors)
+      Array(data["stages"]).each do |stage|
+        validate_open_questions(stage["open_questions"] || {}, errors, prefix: "stages.#{stage['stage_id']}.open_questions")
+      end
+    end
+
+    def validate_open_questions(data, errors, prefix:)
+      %w[p0 p1 p2].each do |priority|
+        Array(data[priority]).each_with_index do |item, index|
+          validate_open_question_item(item, errors, "#{prefix}.#{priority}.#{index}")
+        end
+      end
+    end
+
+    def validate_open_question_item(item, errors, prefix)
+      options = Array(item["options"])
+      recommended = item["recommended"].to_s.strip
+      option_values = options.map { |option| option["value"] }
+
+      if options.empty?
+        errors << "#{prefix}.options should not be empty; prefer structured options before falling back to free text"
+      elsif options.length < 2
+        errors << "#{prefix}.options should contain at least 2 items"
+      elsif options.length > 5
+        errors << "#{prefix}.options should contain at most 5 items; split the question if needed"
+      end
+
+      unless recommended.empty?
+        errors << "#{prefix}.recommended must match one of options.value" unless option_values.include?(recommended)
+      end
+
+      if item["must_answer"] != true
+        errors << "#{prefix}.must_answer must be true for open questions"
       end
     end
 
