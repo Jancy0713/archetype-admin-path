@@ -1,0 +1,25 @@
+artifact_type: review
+version: "1.0"
+status:
+  step: requirement_clarification
+  attempt: 1
+  max_retry: 2
+meta:
+  subject_type: clarification
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  subject_path: ""
+  reviewer: ""
+  updated_at: ""
+findings:
+  issues: []
+  missing_info: []
+  p0: []
+decision:
+  has_blocking_issue: false
+  allow_next_step: false
+  need_human_escalation: false
+  reason: ""
+required_revisions: []
+notes: []

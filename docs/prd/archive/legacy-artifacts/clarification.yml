@@ -1,0 +1,32 @@
+artifact_type: clarification
+version: "1.0"
+status:
+  step: requirement_clarification
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+confirmed:
+  product_type: ""
+  target_users: []
+  primary_platforms: []
+  in_scope: []
+  out_of_scope: []
+gaps:
+  p0: []
+  p1: []
+  p2: []
+questions:
+  business_goal: []
+  role_and_tenant: []
+  resources: []
+  workflows: []
+  states_and_rules: []
+  frontend_backend_split: []
+decision:
+  allowed_to_write_brief: false
+  reason: ""

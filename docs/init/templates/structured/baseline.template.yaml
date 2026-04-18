@@ -1,0 +1,146 @@
+artifact_type: baseline
+version: "1.0"
+status:
+  step: initialization_baseline
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  updated_at: ""
+project_summary:
+  product_type: ""
+  business_mode: ""
+  target_market: ""
+  default_region: ""
+  default_language: ""
+identity_access:
+  login_methods: []
+  account_identifier: ""
+  account_model: ""
+  permission_model: ""
+  tenant_model: ""
+ui_foundation:
+  visual_direction: ""
+  theme_mode: ""
+  density: ""
+  navigation_style: ""
+platform_defaults:
+  notifications: ""
+  audit_log: ""
+  upload: ""
+  export: ""
+  i18n: ""
+field_sources:
+  project_summary:
+    product_type:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    business_mode:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    target_market:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    default_region:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    default_language:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+  identity_access:
+    login_methods:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    account_identifier:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    account_model:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    permission_model:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    tenant_model:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+  ui_foundation:
+    visual_direction:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    theme_mode:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    density:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    navigation_style:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+  platform_defaults:
+    notifications:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    audit_log:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    upload:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    export:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+    i18n:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
+key_decisions: []
+recommended_defaults: []
+open_questions:
+  p0: []
+  p1: []
+  p2: []
+decision:
+  baseline_confirmed: false
+  reason: ""

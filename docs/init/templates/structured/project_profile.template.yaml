@@ -1,0 +1,256 @@
+artifact_type: project_profile
+version: "1.0"
+status:
+  step: project_initialization
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+project_profile:
+  project_summary: ""
+  system_type: ""
+  product_type: ""
+  business_mode: ""
+  target_users: []
+  primary_clients: []
+  target_market: ""
+stage_progress:
+  current_stage: foundation_context
+  last_confirmed_stage: ""
+  completed_stages: []
+  remaining_stages:
+    - tenant_governance
+    - identity_access
+    - experience_platform
+  profile_ready: false
+stages:
+  - stage_id: foundation_context
+    stage_name: 基础上下文
+    priority: p0
+    objective: 确认地区、语言、系统类型和主要使用端
+    status: in_progress
+    summary: ""
+    confirmation:
+      required: true
+      confirmed: false
+      summary: ""
+      confirmed_by: ""
+      confirmed_at: ""
+    required_questions:
+      - question_id: system_type
+        question: 这是什么类型的系统？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: audience_type
+        question: 这个系统主要面向外部客户、外部合作方，还是内部团队？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: default_region
+        question: 默认地区是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: default_language
+        question: 默认语言是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: primary_clients
+        question: 主要使用端是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: core_usage_scenario
+        question: 这个系统的核心使用场景是什么？
+        recommended: ""
+        options: []
+        reason: ""
+    adaptive_questions: []
+    key_decisions: []
+    recommended_defaults: []
+    open_questions:
+      p0: []
+      p1: []
+      p2: []
+  - stage_id: tenant_governance
+    stage_name: 租户与管理结构
+    priority: p1
+    objective: 确认租户模型，以及平台级与租户级管理边界
+    status: pending
+    summary: ""
+    confirmation:
+      required: true
+      confirmed: false
+      summary: ""
+      confirmed_by: ""
+      confirmed_at: ""
+    required_questions:
+      - question_id: tenant_model
+        question: 系统是单租户还是多租户？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: tenant_subject
+        question: 如果是多租户，租户代表的对象是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: platform_tenant_layers
+        question: 是否存在平台级与租户级两层管理？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: org_structure_needed
+        question: 是否需要组织/部门结构？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: org_structure_purpose
+        question: 如果有组织/部门结构，它主要用于数据归属、审批流转，还是权限管理？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: governance_boundary
+        question: 平台侧、租户侧、组织侧之间的管理边界是什么？
+        recommended: ""
+        options: []
+        reason: ""
+    adaptive_questions: []
+    key_decisions: []
+    recommended_defaults: []
+    open_questions:
+      p0: []
+      p1: []
+      p2: []
+  - stage_id: identity_access
+    stage_name: 身份与权限
+    priority: p1
+    objective: 确认登录方式、账号体系和权限模型
+    status: pending
+    summary: ""
+    confirmation:
+      required: true
+      confirmed: false
+      summary: ""
+      confirmed_by: ""
+      confirmed_at: ""
+    required_questions:
+      - question_id: login_method
+        question: 默认登录方式是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: account_identifier
+        question: 账号的唯一标识是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: account_system
+        question: 账号体系是平台统一账号，还是租户内独立账号？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: cross_tenant_account
+        question: 一个账号能否跨租户使用？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: permission_model
+        question: 权限模型是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: privileged_roles
+        question: 是否存在超管、平台管理员、租户管理员等高权限角色？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: member_permission_basis
+        question: 普通成员的权限主要按角色分配，还是按组织/岗位/资源范围分配？
+        recommended: ""
+        options: []
+        reason: ""
+    adaptive_questions: []
+    key_decisions: []
+    recommended_defaults: []
+    open_questions:
+      p0: []
+      p1: []
+      p2: []
+  - stage_id: experience_platform
+    stage_name: 体验与平台能力
+    priority: p2
+    objective: 确认 UI 风格、主题和通用平台能力
+    status: pending
+    summary: ""
+    confirmation:
+      required: true
+      confirmed: false
+      summary: ""
+      confirmed_by: ""
+      confirmed_at: ""
+    required_questions:
+      - question_id: visual_direction
+        question: UI 风格方向是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: theme_mode
+        question: 主题模式是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: navigation_style
+        question: 导航方式是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: information_density
+        question: 信息密度偏好是什么？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: notifications_needed
+        question: 是否需要通知能力？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: audit_log_needed
+        question: 是否需要审计日志能力？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: export_needed
+        question: 是否需要导出能力？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: upload_needed
+        question: 是否需要上传能力？
+        recommended: ""
+        options: []
+        reason: ""
+      - question_id: i18n_needed
+        question: 是否需要国际化/多语言支持？
+        recommended: ""
+        options: []
+        reason: ""
+    adaptive_questions: []
+    key_decisions: []
+    recommended_defaults: []
+    open_questions:
+      p0: []
+      p1: []
+      p2: []
+decision:
+  allow_baseline: false
+  reason: ""

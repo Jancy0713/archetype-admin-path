@@ -1,0 +1,26 @@
+artifact_type: change_request
+version: "1.0"
+status:
+  step: initialization_change
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  updated_at: ""
+change:
+  target_domain: ""
+  current_baseline: ""
+  requested_change: ""
+  reason: ""
+impact:
+  affected_areas: []
+  blocking_risk: ""
+  migration_notes: []
+decision:
+  allow_update: false
+  reason: ""
