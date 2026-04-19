@@ -32,6 +32,8 @@ runs/
       init-04.project_profile.yaml
       init-04.review.yaml
       init-05.baseline.yaml
+      init-06.design_seed.yaml
+      init-07.bootstrap_plan.yaml
     prd/
       prd-01.clarification.yaml
       prd-01.review.yaml
@@ -97,6 +99,11 @@ runs/
 - 只放正式 YAML
 - 文件名必须和 `meta.step_id` 对齐
 - reviewer 产物与被审对象复用同一个 `step_id`
+- 当前推荐顺序是：
+  - `init-01` 到 `init-04`：阶段化问卷
+  - `init-05`：baseline 定稿
+  - `init-06`：design_seed
+  - `init-07`：bootstrap_plan
 
 ### `prd/`
 

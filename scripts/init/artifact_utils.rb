@@ -6,7 +6,7 @@ module InitFlow
 
     ROOT = File.expand_path("../..", __dir__)
 
-    ARTIFACT_TYPES = %w[project_profile review baseline change_request].freeze
+    ARTIFACT_TYPES = %w[project_profile review baseline design_seed bootstrap_plan change_request].freeze
     REVIEWABLE_STEPS = %w[project_initialization].freeze
     REVIEWABLE_SUBJECTS = {
       "project_initialization" => "project_profile",
@@ -45,6 +45,7 @@ module InitFlow
       ],
       "experience_platform" => %w[
         visual_direction
+        ui_style_recipe
         theme_mode
         navigation_style
         information_density
@@ -58,7 +59,7 @@ module InitFlow
     BASELINE_TRACKED_FIELDS = {
       "project_summary" => %w[product_type business_mode target_market default_region default_language],
       "identity_access" => %w[login_methods account_identifier account_model permission_model tenant_model],
-      "ui_foundation" => %w[visual_direction theme_mode density navigation_style],
+      "ui_foundation" => %w[visual_direction style_recipe theme_mode density navigation_style],
       "platform_defaults" => %w[notifications audit_log upload export i18n],
     }.freeze
     REVIEW_STAGE_CHECKLIST_IDS = {
@@ -92,6 +93,7 @@ module InitFlow
       ],
       "experience_platform" => %w[
         visual_direction_clarity
+        ui_style_recipe_clarity
         theme_mode_clarity
         navigation_style_clarity
         information_density_clarity
@@ -110,57 +112,6 @@ module InitFlow
       },
     }.freeze
 
-    DECISION_CANDIDATE_SCHEMA = {
-      type: :hash,
-      keys: {
-        "topic" => { type: :string, non_empty: true },
-        "question" => { type: :string, non_empty: true },
-        "explanation" => { type: :string },
-        "recommended" => { type: :string, non_empty: true },
-        "options" => { type: :array, item_schema: OPTION_SCHEMA },
-        "allow_multiple" => { type: :boolean },
-        "allow_custom_answer" => { type: :boolean },
-        "default_if_no_answer" => { type: :string },
-        "must_confirm" => { type: :boolean },
-      },
-    }.freeze
-
-    OPEN_QUESTION_SCHEMA = {
-      type: :hash,
-      keys: {
-        "topic" => { type: :string, non_empty: true },
-        "question" => { type: :string, non_empty: true },
-        "explanation" => { type: :string, non_empty: true },
-        "recommended" => { type: :string },
-        "options" => { type: :array, item_schema: OPTION_SCHEMA },
-        "allow_multiple" => { type: :boolean },
-        "allow_custom_answer" => { type: :boolean },
-        "must_answer" => { type: :boolean },
-      },
-    }.freeze
-
-    DEFAULT_SCHEMA = {
-      type: :hash,
-      keys: {
-        "topic" => { type: :string, non_empty: true },
-        "explanation" => { type: :string, non_empty: true },
-        "default_value" => { type: :string, non_empty: true },
-        "rationale" => { type: :string, non_empty: true },
-        "alternatives" => { type: :array, item_schema: { type: :string } },
-        "must_confirm" => { type: :boolean },
-        "upgrade_condition" => { type: :string },
-      },
-    }.freeze
-
-    OPEN_QUESTIONS_SCHEMA = {
-      type: :hash,
-      keys: {
-        "p0" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
-        "p1" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
-        "p2" => { type: :array, item_schema: OPEN_QUESTION_SCHEMA },
-      },
-    }.freeze
-
     STAGE_CONFIRMATION_SCHEMA = {
       type: :hash,
       keys: {
@@ -172,14 +123,18 @@ module InitFlow
       },
     }.freeze
 
-    QUESTION_SUGGESTION_SCHEMA = {
+    CONFIRMATION_ITEM_SCHEMA = {
       type: :hash,
       keys: {
-        "question_id" => { type: :string, non_empty: true },
+        "item_id" => { type: :string, non_empty: true },
         "question" => { type: :string, non_empty: true },
+        "level" => { type: :string, enum: %w[secondary primary required] },
+        "answer_mode" => { type: :string, enum: %w[single_choice multi_choice text] },
         "recommended" => { type: :string },
         "options" => { type: :array, item_schema: OPTION_SCHEMA },
-        "reason" => { type: :string, non_empty: true },
+        "reason" => { type: :string },
+        "allow_custom_answer" => { type: :boolean },
+        "default_if_no_answer" => { type: :string },
       },
     }.freeze
 
@@ -203,6 +158,73 @@ module InitFlow
           end,
         }
       end,
+    }.freeze
+
+    DESIGN_TOKEN_ITEM_SCHEMA = {
+      type: :hash,
+      keys: {
+        "token" => { type: :string, non_empty: true },
+        "value" => { type: :string, non_empty: true },
+        "note" => { type: :string },
+      },
+    }.freeze
+
+    DESIGN_COLOR_ROLE_SCHEMA = {
+      type: :hash,
+      keys: {
+        "role" => { type: :string, non_empty: true },
+        "value" => { type: :string, non_empty: true },
+        "usage" => { type: :string },
+      },
+    }.freeze
+
+    BOOTSTRAP_CONTEXT_SECTION_SCHEMA = {
+      type: :hash,
+      keys: {
+        "primary_inputs" => { type: :array, item_schema: { type: :string } },
+        "design_seed_highlights" => { type: :array, item_schema: { type: :string } },
+      },
+    }.freeze
+
+    PRD_BOOTSTRAP_MODULE_SCHEMA = {
+      type: :hash,
+      keys: {
+        "module_id" => { type: :string, non_empty: true },
+        "name" => { type: :string, non_empty: true },
+        "objective" => { type: :string, non_empty: true },
+        "requirements" => { type: :array, item_schema: { type: :string } },
+      },
+    }.freeze
+
+    BOOTSTRAP_OUTPUT_ARTIFACTS_SCHEMA = {
+      type: :hash,
+      keys: {
+        "template_path" => { type: :string, non_empty: true },
+        "target_path" => { type: :string, non_empty: true },
+      },
+    }.freeze
+
+    BOOTSTRAP_PRESET_PACK_SCHEMA = {
+      type: :hash,
+      keys: {
+        "pack_id" => { type: :string, non_empty: true },
+        "name" => { type: :string, non_empty: true },
+        "enabled_when" => { type: :string, non_empty: true },
+        "preset_actions" => { type: :array, item_schema: { type: :string } },
+        "install_commands" => { type: :array, item_schema: { type: :string } },
+        "generated_files" => { type: :array, item_schema: { type: :string } },
+        "ai_followups" => { type: :array, item_schema: { type: :string } },
+      },
+    }.freeze
+
+    BOOTSTRAP_CONDITIONAL_PARAMETER_SCHEMA = {
+      type: :hash,
+      keys: {
+        "parameter_id" => { type: :string, non_empty: true },
+        "source_field" => { type: :string, non_empty: true },
+        "current_value" => { type: :string, non_empty: true },
+        "effect_on_scope" => { type: :array, item_schema: { type: :string } },
+      },
     }.freeze
 
     REVIEW_CHECKLIST_ITEM_SCHEMA = {
@@ -232,11 +254,7 @@ module InitFlow
         "status" => { type: :string, enum: %w[pending in_progress confirmed] },
         "summary" => { type: :string },
         "confirmation" => STAGE_CONFIRMATION_SCHEMA,
-        "required_questions" => { type: :array, item_schema: QUESTION_SUGGESTION_SCHEMA },
-        "adaptive_questions" => { type: :array, item_schema: QUESTION_SUGGESTION_SCHEMA, max_items: 2 },
-        "key_decisions" => { type: :array, item_schema: DECISION_CANDIDATE_SCHEMA },
-        "recommended_defaults" => { type: :array, item_schema: DEFAULT_SCHEMA },
-        "open_questions" => OPEN_QUESTIONS_SCHEMA,
+        "confirmation_items" => { type: :array, item_schema: CONFIRMATION_ITEM_SCHEMA },
       },
     }.freeze
 
@@ -245,7 +263,7 @@ module InitFlow
         type: :hash,
         keys: {
           "artifact_type" => { type: :string, equals: "project_profile" },
-          "version" => { type: :string, equals: "1.0" },
+          "version" => { type: :string, equals: "1.0.2" },
           "status" => {
             type: :hash,
             keys: {
@@ -303,7 +321,7 @@ module InitFlow
         type: :hash,
         keys: {
           "artifact_type" => { type: :string, equals: "review" },
-          "version" => { type: :string, equals: "1.0" },
+          "version" => { type: :string, equals: "1.0.2" },
           "status" => {
             type: :hash,
             keys: {
@@ -350,7 +368,7 @@ module InitFlow
         type: :hash,
         keys: {
           "artifact_type" => { type: :string, equals: "baseline" },
-          "version" => { type: :string, equals: "1.0" },
+          "version" => { type: :string, equals: "1.0.2" },
           "status" => {
             type: :hash,
             keys: {
@@ -395,6 +413,7 @@ module InitFlow
             type: :hash,
             keys: {
               "visual_direction" => { type: :string },
+              "style_recipe" => { type: :string },
               "theme_mode" => { type: :string },
               "density" => { type: :string },
               "navigation_style" => { type: :string },
@@ -411,16 +430,7 @@ module InitFlow
             },
           },
           "field_sources" => BASELINE_FIELD_SOURCES_SCHEMA,
-          "key_decisions" => { type: :array, item_schema: DECISION_CANDIDATE_SCHEMA },
-          "recommended_defaults" => { type: :array, item_schema: DEFAULT_SCHEMA },
-          "open_questions" => {
-            type: :hash,
-            keys: {
-              "p0" => { type: :array, item_schema: { type: :string } },
-              "p1" => { type: :array, item_schema: { type: :string } },
-              "p2" => { type: :array, item_schema: { type: :string } },
-            },
-          },
+          "confirmation_items" => { type: :array, item_schema: CONFIRMATION_ITEM_SCHEMA },
           "decision" => {
             type: :hash,
             keys: {
@@ -430,11 +440,157 @@ module InitFlow
           },
         },
       },
+      "design_seed" => {
+        type: :hash,
+        keys: {
+          "artifact_type" => { type: :string, equals: "design_seed" },
+          "version" => { type: :string, equals: "1.0.2" },
+          "status" => {
+            type: :hash,
+            keys: {
+              "step" => { type: :string, equals: "initialization_design_seed" },
+              "attempt" => { type: :integer, min: 1 },
+              "max_retry" => { type: :integer, equals: 2 },
+              "ready_for_next" => { type: :boolean },
+            },
+          },
+          "meta" => {
+            type: :hash,
+            keys: {
+              "title" => { type: :string, non_empty: true },
+              "flow_id" => { type: :string },
+              "step_id" => { type: :string },
+              "artifact_id" => { type: :string },
+              "source_paths" => { type: :array, item_schema: { type: :string, non_empty: true } },
+              "updated_at" => { type: :string },
+            },
+          },
+          "design_context" => {
+            type: :hash,
+            keys: {
+              "current_baseline" => { type: :string, non_empty: true },
+              "selected_style_recipe" => { type: :string, non_empty: true },
+              "source_style_reference" => { type: :string, non_empty: true },
+              "generation_policy" => { type: :string, non_empty: true },
+            },
+          },
+          "theme_strategy" => {
+            type: :hash,
+            keys: {
+              "default_mode" => { type: :string, non_empty: true },
+              "supports_dark_mode" => { type: :string, non_empty: true },
+              "density_strategy" => { type: :string, non_empty: true },
+              "navigation_principle" => { type: :string, non_empty: true },
+            },
+          },
+          "token_baseline" => {
+            type: :hash,
+            keys: {
+              "spacing_scale" => { type: :array, item_schema: DESIGN_TOKEN_ITEM_SCHEMA },
+              "radius_scale" => { type: :array, item_schema: DESIGN_TOKEN_ITEM_SCHEMA },
+              "shadow_scale" => { type: :array, item_schema: DESIGN_TOKEN_ITEM_SCHEMA },
+              "typography_scale" => { type: :array, item_schema: DESIGN_TOKEN_ITEM_SCHEMA },
+              "color_roles" => { type: :array, item_schema: DESIGN_COLOR_ROLE_SCHEMA },
+            },
+          },
+          "layout_principles" => {
+            type: :hash,
+            keys: {
+              "app_shell" => { type: :string, non_empty: true },
+              "page_patterns" => { type: :array, item_schema: { type: :string } },
+              "component_principles" => { type: :array, item_schema: { type: :string } },
+              "prohibited_patterns" => { type: :array, item_schema: { type: :string } },
+            },
+          },
+          "decision" => {
+            type: :hash,
+            keys: {
+              "seed_ready" => { type: :boolean },
+              "reason" => { type: :string, non_empty: true },
+            },
+          },
+        },
+      },
+      "bootstrap_plan" => {
+        type: :hash,
+        keys: {
+          "artifact_type" => { type: :string, equals: "bootstrap_plan" },
+          "version" => { type: :string, equals: "1.0.2" },
+          "status" => {
+            type: :hash,
+            keys: {
+              "step" => { type: :string, equals: "initialization_bootstrap_plan" },
+              "attempt" => { type: :integer, min: 1 },
+              "max_retry" => { type: :integer, equals: 2 },
+              "ready_for_next" => { type: :boolean },
+            },
+          },
+          "meta" => {
+            type: :hash,
+            keys: {
+              "title" => { type: :string, non_empty: true },
+              "flow_id" => { type: :string },
+              "step_id" => { type: :string },
+              "artifact_id" => { type: :string },
+              "source_paths" => { type: :array, item_schema: { type: :string, non_empty: true } },
+              "updated_at" => { type: :string },
+            },
+          },
+          "init_execution_scope" => {
+            type: :hash,
+            keys: {
+              "output_artifacts" => BOOTSTRAP_OUTPUT_ARTIFACTS_SCHEMA,
+              "conditional_parameters" => { type: :array, item_schema: BOOTSTRAP_CONDITIONAL_PARAMETER_SCHEMA },
+              "preset_capability_packs" => { type: :array, item_schema: BOOTSTRAP_PRESET_PACK_SCHEMA },
+              "command_blueprints" => { type: :array, item_schema: { type: :string } },
+              "code_artifacts" => { type: :array, item_schema: { type: :string } },
+              "ai_followups" => { type: :array, item_schema: { type: :string } },
+              "allowed_work" => { type: :array, item_schema: { type: :string } },
+              "excluded_work" => { type: :array, item_schema: { type: :string } },
+              "deliverables" => { type: :array, item_schema: { type: :string } },
+              "completion_criteria" => { type: :array, item_schema: { type: :string } },
+              "reviewer_focus" => { type: :array, item_schema: { type: :string } },
+            },
+          },
+          "project_conventions" => {
+            type: :hash,
+            keys: {
+              "output_artifacts" => BOOTSTRAP_OUTPUT_ARTIFACTS_SCHEMA,
+              "generation_workflow" => { type: :array, item_schema: { type: :string } },
+              "source_of_truth" => BOOTSTRAP_CONTEXT_SECTION_SCHEMA,
+              "sections_to_fill" => { type: :array, item_schema: { type: :string } },
+              "reviewer_focus" => { type: :array, item_schema: { type: :string } },
+              "notes" => { type: :array, item_schema: { type: :string } },
+            },
+          },
+          "prd_bootstrap_context" => {
+            type: :hash,
+            keys: {
+              "output_artifacts" => BOOTSTRAP_OUTPUT_ARTIFACTS_SCHEMA,
+              "generation_workflow" => { type: :array, item_schema: { type: :string } },
+              "document_goal" => { type: :array, item_schema: { type: :string } },
+              "project_overview" => { type: :array, item_schema: { type: :string } },
+              "confirmed_foundation" => { type: :array, item_schema: { type: :string } },
+              "priority_modules" => { type: :array, item_schema: PRD_BOOTSTRAP_MODULE_SCHEMA },
+              "prd_focus" => { type: :array, item_schema: { type: :string } },
+              "reviewer_focus" => { type: :array, item_schema: { type: :string } },
+              "notes" => { type: :array, item_schema: { type: :string } },
+            },
+          },
+          "decision" => {
+            type: :hash,
+            keys: {
+              "plan_confirmed" => { type: :boolean },
+              "reason" => { type: :string, non_empty: true },
+            },
+          },
+        },
+      },
       "change_request" => {
         type: :hash,
         keys: {
           "artifact_type" => { type: :string, equals: "change_request" },
-          "version" => { type: :string, equals: "1.0" },
+          "version" => { type: :string, equals: "1.0.2" },
           "status" => {
             type: :hash,
             keys: {
@@ -568,14 +724,17 @@ module InitFlow
         ensure_ready_flag_matches(errors, data, %w[decision allow_baseline], "decision.allow_baseline")
         ensure_ready_flag_matches(errors, data, %w[stage_progress profile_ready], "stage_progress.profile_ready")
         validate_profile_stages(data, errors)
-        validate_profile_stage_decisions(data, errors)
-        validate_profile_open_questions(data, errors)
       when "baseline"
         ensure_ready_flag_matches(errors, data, %w[decision baseline_confirmed], "decision.baseline_confirmed")
-        block_on_p0(errors, data, %w[open_questions p0], %w[decision baseline_confirmed], "decision.baseline_confirmed")
-        validate_decision_candidates(data, errors)
-        validate_open_questions(data["open_questions"] || {}, errors, prefix: "open_questions")
+        block_on_required_confirmation_items(errors, data["confirmation_items"], dig(data, %w[decision baseline_confirmed]), "decision.baseline_confirmed")
+        validate_confirmation_items_collection(data["confirmation_items"], errors, prefix: "confirmation_items")
         validate_baseline_field_source_completeness(data, errors)
+      when "design_seed"
+        ensure_ready_flag_matches(errors, data, %w[decision seed_ready], "decision.seed_ready")
+        validate_design_seed_content(data, errors)
+      when "bootstrap_plan"
+        ensure_ready_flag_matches(errors, data, %w[decision plan_confirmed], "decision.plan_confirmed")
+        validate_bootstrap_plan_content(data, errors)
       when "change_request"
         ensure_ready_flag_matches(errors, data, %w[decision allow_update], "decision.allow_update")
       when "review"
@@ -635,7 +794,7 @@ module InitFlow
       ordered_stages.each do |stage|
         validate_profile_stage_content(stage, current_stage, errors)
         validate_profile_stage_confirmation(stage, errors)
-        validate_profile_stage_questions(stage, errors)
+        validate_profile_stage_confirmation_items(stage, errors)
       end
 
       unless completed_stages == confirmed
@@ -672,11 +831,11 @@ module InitFlow
         errors << "stage_progress.remaining_stages must list stages after current_stage in order"
       end
 
-      all_p0 = ordered_stages.flat_map { |stage| Array(dig(stage, %w[open_questions p0])) }
-      if all_p0.any?
-        errors << "decision.allow_baseline must be false when any stage open_questions.p0 is not empty" if dig(data, %w[decision allow_baseline]) != false
-        errors << "status.ready_for_next must be false when any stage open_questions.p0 is not empty" if dig(data, %w[status ready_for_next]) != false
-        errors << "stage_progress.profile_ready must be false when any stage open_questions.p0 is not empty" if dig(data, %w[stage_progress profile_ready]) != false
+      all_required_items = ordered_stages.flat_map { |stage| Array(stage["confirmation_items"]).select { |item| item["level"] == "required" } }
+      if all_required_items.any?
+        errors << "decision.allow_baseline must be false when any stage has level=required confirmation_items" if dig(data, %w[decision allow_baseline]) != false
+        errors << "status.ready_for_next must be false when any stage has level=required confirmation_items" if dig(data, %w[status ready_for_next]) != false
+        errors << "stage_progress.profile_ready must be false when any stage has level=required confirmation_items" if dig(data, %w[stage_progress profile_ready]) != false
       end
 
       unless profile_ready == (confirmed.length == PROJECT_PROFILE_STAGE_IDS.length)
@@ -690,23 +849,15 @@ module InitFlow
       end
     end
 
-    def validate_profile_stage_decisions(data, errors)
-      Array(data["stages"]).each do |stage|
-        validate_decision_candidates(stage, errors, prefix: "stages.#{stage['stage_id']}")
-      end
-    end
-
     def validate_profile_stage_content(stage, current_stage, errors)
       stage_id = stage["stage_id"]
       status = stage["status"]
       has_summary = !stage["summary"].to_s.strip.empty?
-      has_adaptive_questions = Array(stage["adaptive_questions"]).any?
-      has_decisions = Array(stage["key_decisions"]).any?
-      has_defaults = Array(stage["recommended_defaults"]).any?
-      has_open_questions = %w[p0 p1 p2].any? { |level| Array(dig(stage, ["open_questions", level])).any? }
+      has_prefilled_confirmation_items = Array(stage["confirmation_items"]).any? { |item| confirmation_item_has_content?(item) }
+      has_extra_confirmation_items = extra_confirmation_items(stage).any?
 
       if status == "pending"
-        if has_summary || has_adaptive_questions || has_decisions || has_defaults || has_open_questions
+        if has_summary || has_prefilled_confirmation_items || has_extra_confirmation_items
           errors << "stages.#{stage_id} must stay empty while pending; do not prefill future stages"
         end
       end
@@ -736,42 +887,71 @@ module InitFlow
       end
     end
 
-    def validate_profile_stage_questions(stage, errors)
+    def validate_profile_stage_confirmation_items(stage, errors)
       stage_id = stage["stage_id"]
       expected_ids = STAGE_REQUIRED_QUESTION_IDS.fetch(stage_id)
-      required_questions = Array(stage["required_questions"])
-      actual_ids = required_questions.map { |item| item["question_id"] }
+      items = Array(stage["confirmation_items"])
+      actual_ids = items.map { |item| item["item_id"] }
+      fixed_ids = actual_ids.take(expected_ids.length)
 
-      unless actual_ids == expected_ids
-        errors << "stages.#{stage_id}.required_questions must match the fixed question set and order"
+      unless fixed_ids == expected_ids
+        errors << "stages.#{stage_id}.confirmation_items must start with the fixed item set and order"
       end
 
-      required_questions.each_with_index do |question, index|
-        validate_question_suggestion(stage_id, question, errors, "stages.#{stage_id}.required_questions.#{index}", adaptive: false)
+      if actual_ids.uniq.length != actual_ids.length
+        errors << "stages.#{stage_id}.confirmation_items must not contain duplicate item_id"
       end
 
-      adaptive_questions = Array(stage["adaptive_questions"])
-      adaptive_questions.each_with_index do |question, index|
-        validate_question_suggestion(stage_id, question, errors, "stages.#{stage_id}.adaptive_questions.#{index}", adaptive: true)
+      items.each_with_index do |item, index|
+        fixed = index < expected_ids.length
+        validate_confirmation_item(item, errors, "stages.#{stage_id}.confirmation_items.#{index}", allow_blank: stage["status"] == "pending", fixed_item: fixed)
       end
     end
 
-    def validate_question_suggestion(stage_id, question, errors, prefix, adaptive:)
-      options = Array(question["options"])
-      recommended = question["recommended"].to_s.strip
-      reason = question["reason"].to_s.strip
-      question_id = question["question_id"].to_s.strip
+    def validate_confirmation_item(item, errors, prefix, allow_blank:, fixed_item: false)
+      item_id = item["item_id"].to_s.strip
+      answer_mode = item["answer_mode"].to_s
+      options = Array(item["options"])
+      recommended = item["recommended"].to_s.strip
+      reason = item["reason"].to_s.strip
+      default_if_no_answer = item["default_if_no_answer"].to_s.strip
+      level = item["level"].to_s
 
-      if adaptive && STAGE_REQUIRED_QUESTION_IDS.fetch(stage_id).include?(question_id)
-        errors << "#{prefix}.question_id must not duplicate a fixed required question"
+      if fixed_item && item_id.empty?
+        errors << "#{prefix}.item_id must not be empty"
       end
 
-      if recommended.empty?
-        errors << "#{prefix}.reason must explain why no recommendation is provided" if reason.empty?
+      unless %w[secondary primary required].include?(level)
+        errors << "#{prefix}.level must be one of secondary, primary, required"
+      end
+
+      unless %w[single_choice multi_choice text].include?(answer_mode)
+        errors << "#{prefix}.answer_mode must be one of single_choice, multi_choice, text"
+      end
+
+      if allow_blank && !confirmation_item_has_content?(item)
+        return
+      end
+
+      errors << "#{prefix}.reason must not be empty" if reason.empty?
+
+      if answer_mode == "text"
+        errors << "#{prefix}.options must stay empty when answer_mode is text" if options.any?
+        errors << "#{prefix}.default_if_no_answer should stay empty when answer_mode is text" unless default_if_no_answer.empty?
       else
-        errors << "#{prefix}.options must not be empty when recommended is present" if options.empty?
+        if options.length < 2
+          errors << "#{prefix}.options should contain at least 2 items"
+        elsif options.length > 5
+          errors << "#{prefix}.options should contain at most 5 items; split the question if needed"
+        end
+
         option_values = options.map { |option| option["value"] }
-        errors << "#{prefix}.recommended must match one of options.value" unless option_values.include?(recommended)
+        unless recommended.empty?
+          errors << "#{prefix}.recommended must match one of options.value" unless option_values.include?(recommended)
+        end
+        unless default_if_no_answer.empty?
+          errors << "#{prefix}.default_if_no_answer must match one of options.value" unless option_values.include?(default_if_no_answer)
+        end
       end
     end
 
@@ -799,60 +979,103 @@ module InitFlow
       end
     end
 
-    def validate_decision_candidates(data, errors, prefix: "key_decisions")
-      Array(data["key_decisions"]).each_with_index do |item, index|
-        options = Array(item["options"])
-        option_values = options.map { |option| option["value"] }
-        if options.length < 2
-          errors << "#{prefix}.#{index}.options should contain at least 2 items"
-        elsif options.length > 5
-          errors << "#{prefix}.#{index}.options should contain at most 5 items; split the question if needed"
-        end
-        errors << "#{prefix}.#{index}.recommended must match one of options.value" unless option_values.include?(item["recommended"])
-        next if item["default_if_no_answer"].to_s.strip.empty?
-        errors << "#{prefix}.#{index}.default_if_no_answer must match one of options.value" unless option_values.include?(item["default_if_no_answer"])
+    def validate_confirmation_items_collection(items, errors, prefix:)
+      ids = Array(items).map { |item| item["item_id"] }
+      if ids.uniq.length != ids.length
+        errors << "#{prefix} must not contain duplicate item_id"
+      end
+
+      Array(items).each_with_index do |item, index|
+        validate_confirmation_item(item, errors, "#{prefix}.#{index}", allow_blank: false)
       end
     end
 
-    def validate_profile_open_questions(data, errors)
-      Array(data["stages"]).each do |stage|
-        validate_open_questions(stage["open_questions"] || {}, errors, prefix: "stages.#{stage['stage_id']}.open_questions")
+    def block_on_required_confirmation_items(errors, items, value, label)
+      return unless Array(items).any? { |item| item["level"] == "required" }
+      errors << "#{label} must be false when confirmation_items contains level=required" if value != false
+    end
+
+    def extra_confirmation_items(stage)
+      fixed_ids = STAGE_REQUIRED_QUESTION_IDS.fetch(stage["stage_id"])
+      Array(stage["confirmation_items"]).drop(fixed_ids.length)
+    end
+
+    def confirmation_item_has_content?(item)
+      present_value?(item["recommended"]) ||
+        Array(item["options"]).any? ||
+        present_value?(item["reason"]) ||
+        present_value?(item["default_if_no_answer"])
+    end
+
+    def validate_design_seed_content(data, errors)
+      color_roles = Array(dig(data, %w[token_baseline color_roles]))
+      errors << "token_baseline.color_roles should contain at least 3 items" if color_roles.length < 3
+      required_sections = %w[spacing_scale radius_scale shadow_scale typography_scale]
+      required_sections.each do |section|
+        items = Array(dig(data, ["token_baseline", section]))
+        errors << "token_baseline.#{section} should contain at least 1 item" if items.empty?
       end
     end
 
-    def validate_open_questions(data, errors, prefix:)
-      %w[p0 p1 p2].each do |priority|
-        Array(data[priority]).each_with_index do |item, index|
-          validate_open_question_item(item, errors, "#{prefix}.#{priority}.#{index}")
-        end
-      end
-    end
+    def validate_bootstrap_plan_content(data, errors)
+      init_template = dig(data, %w[init_execution_scope output_artifacts template_path]).to_s.strip
+      init_target = dig(data, %w[init_execution_scope output_artifacts target_path]).to_s.strip
+      conditional_parameters = Array(dig(data, %w[init_execution_scope conditional_parameters]))
+      preset_packs = Array(dig(data, %w[init_execution_scope preset_capability_packs]))
+      command_blueprints = Array(dig(data, %w[init_execution_scope command_blueprints]))
+      code_artifacts = Array(dig(data, %w[init_execution_scope code_artifacts]))
+      ai_followups = Array(dig(data, %w[init_execution_scope ai_followups]))
+      allowed_work = Array(dig(data, %w[init_execution_scope allowed_work]))
+      excluded_work = Array(dig(data, %w[init_execution_scope excluded_work]))
+      deliverables = Array(dig(data, %w[init_execution_scope deliverables]))
+      completion_criteria = Array(dig(data, %w[init_execution_scope completion_criteria]))
+      init_reviewer_focus = Array(dig(data, %w[init_execution_scope reviewer_focus]))
+      output_template = dig(data, %w[project_conventions output_artifacts template_path]).to_s.strip
+      output_target = dig(data, %w[project_conventions output_artifacts target_path]).to_s.strip
+      generation_workflow = Array(dig(data, %w[project_conventions generation_workflow]))
+      sections_to_fill = Array(dig(data, %w[project_conventions sections_to_fill]))
+      reviewer_focus = Array(dig(data, %w[project_conventions reviewer_focus]))
+      prd_template = dig(data, %w[prd_bootstrap_context output_artifacts template_path]).to_s.strip
+      prd_target = dig(data, %w[prd_bootstrap_context output_artifacts target_path]).to_s.strip
+      prd_generation_workflow = Array(dig(data, %w[prd_bootstrap_context generation_workflow]))
+      document_goal = Array(dig(data, %w[prd_bootstrap_context document_goal]))
+      project_overview = Array(dig(data, %w[prd_bootstrap_context project_overview]))
+      confirmed_foundation = Array(dig(data, %w[prd_bootstrap_context confirmed_foundation]))
+      priority_modules = Array(dig(data, %w[prd_bootstrap_context priority_modules]))
+      prd_focus = Array(dig(data, %w[prd_bootstrap_context prd_focus]))
+      prd_reviewer_focus = Array(dig(data, %w[prd_bootstrap_context reviewer_focus]))
 
-    def validate_open_question_item(item, errors, prefix)
-      options = Array(item["options"])
-      recommended = item["recommended"].to_s.strip
-      option_values = options.map { |option| option["value"] }
-
-      if options.empty?
-        errors << "#{prefix}.options should not be empty; prefer structured options before falling back to free text"
-      elsif options.length < 2
-        errors << "#{prefix}.options should contain at least 2 items"
-      elsif options.length > 5
-        errors << "#{prefix}.options should contain at most 5 items; split the question if needed"
-      end
-
-      unless recommended.empty?
-        errors << "#{prefix}.recommended must match one of options.value" unless option_values.include?(recommended)
-      end
-
-      if item["must_answer"] != true
-        errors << "#{prefix}.must_answer must be true for open questions"
-      end
+      errors << "init_execution_scope.output_artifacts.template_path must not be empty" if init_template.empty?
+      errors << "init_execution_scope.output_artifacts.target_path must not be empty" if init_target.empty?
+      errors << "init_execution_scope.conditional_parameters should contain at least 1 item" if conditional_parameters.empty?
+      errors << "init_execution_scope.preset_capability_packs should contain at least 1 item" if preset_packs.empty?
+      errors << "init_execution_scope.command_blueprints should contain at least 1 item" if command_blueprints.empty?
+      errors << "init_execution_scope.code_artifacts should contain at least 1 item" if code_artifacts.empty?
+      errors << "init_execution_scope.ai_followups should contain at least 1 item" if ai_followups.empty?
+      errors << "init_execution_scope.allowed_work should contain at least 1 item" if allowed_work.empty?
+      errors << "init_execution_scope.excluded_work should contain at least 1 item" if excluded_work.empty?
+      errors << "init_execution_scope.deliverables should contain at least 1 item" if deliverables.empty?
+      errors << "init_execution_scope.completion_criteria should contain at least 1 item" if completion_criteria.empty?
+      errors << "init_execution_scope.reviewer_focus should contain at least 1 item" if init_reviewer_focus.empty?
+      errors << "project_conventions.output_artifacts.template_path must not be empty" if output_template.empty?
+      errors << "project_conventions.output_artifacts.target_path must not be empty" if output_target.empty?
+      errors << "project_conventions.generation_workflow should contain at least 1 item" if generation_workflow.empty?
+      errors << "project_conventions.sections_to_fill should contain at least 1 item" if sections_to_fill.empty?
+      errors << "project_conventions.reviewer_focus should contain at least 1 item" if reviewer_focus.empty?
+      errors << "prd_bootstrap_context.output_artifacts.template_path must not be empty" if prd_template.empty?
+      errors << "prd_bootstrap_context.output_artifacts.target_path must not be empty" if prd_target.empty?
+      errors << "prd_bootstrap_context.generation_workflow should contain at least 1 item" if prd_generation_workflow.empty?
+      errors << "prd_bootstrap_context.document_goal should contain at least 1 item" if document_goal.empty?
+      errors << "prd_bootstrap_context.project_overview should contain at least 1 item" if project_overview.empty?
+      errors << "prd_bootstrap_context.confirmed_foundation should contain at least 1 item" if confirmed_foundation.empty?
+      errors << "prd_bootstrap_context.priority_modules should contain at least 1 item" if priority_modules.empty?
+      errors << "prd_bootstrap_context.prd_focus should contain at least 1 item" if prd_focus.empty?
+      errors << "prd_bootstrap_context.reviewer_focus should contain at least 1 item" if prd_reviewer_focus.empty?
     end
 
     def validate_cross_file_rules(artifact, data, artifact_path, errors)
       case artifact
-      when "project_profile", "baseline", "change_request"
+      when "project_profile", "baseline", "design_seed", "bootstrap_plan", "change_request"
         validate_source_paths(data, artifact_path, errors)
       when "review"
         validate_review_subject(data, artifact_path, errors)
@@ -865,6 +1088,14 @@ module InitFlow
           validate_baseline_source_profile(profile, errors)
           validate_baseline_field_sources(data, profile, errors)
         end
+      elsif artifact == "design_seed"
+        paths = validate_source_paths(data, artifact_path, errors)
+        referenced = paths.map { |path| load_referenced_yaml(path) }.compact
+        errors << "meta.source_paths must include at least one baseline artifact" unless referenced.any? { |ref| ref["artifact_type"] == "baseline" }
+      elsif artifact == "bootstrap_plan"
+        paths = validate_source_paths(data, artifact_path, errors)
+        referenced = paths.map { |path| load_referenced_yaml(path) }.compact
+        errors << "meta.source_paths must include at least one design_seed artifact" unless referenced.any? { |ref| ref["artifact_type"] == "design_seed" }
       end
     end
 
@@ -918,7 +1149,7 @@ module InitFlow
         errors << "field_sources.#{label}.stage_id must reference a known stage unless source_type is project_profile_field"
       end
 
-      allowed_source_types = %w[required_question adaptive_question key_decision recommended_default project_profile_field stage_summary]
+      allowed_source_types = %w[confirmation_item project_profile_field stage_summary]
       unless allowed_source_types.include?(source_type)
         errors << "field_sources.#{label}.source_type must be one of: #{allowed_source_types.join(', ')}"
         return
@@ -941,18 +1172,9 @@ module InitFlow
       end
 
       case source_type
-      when "required_question"
-        question_ids = Array(stage["required_questions"]).map { |item| item["question_id"] }
-        errors << "field_sources.#{label}.source_id must match a required question_id in stage #{stage_id}" unless question_ids.include?(source_id)
-      when "adaptive_question"
-        question_ids = Array(stage["adaptive_questions"]).map { |item| item["question_id"] }
-        errors << "field_sources.#{label}.source_id must match an adaptive question_id in stage #{stage_id}" unless question_ids.include?(source_id)
-      when "key_decision"
-        topics = Array(stage["key_decisions"]).map { |item| item["topic"] }
-        errors << "field_sources.#{label}.source_id must match a key_decisions.topic in stage #{stage_id}" unless topics.include?(source_id)
-      when "recommended_default"
-        topics = Array(stage["recommended_defaults"]).map { |item| item["topic"] }
-        errors << "field_sources.#{label}.source_id must match a recommended_defaults.topic in stage #{stage_id}" unless topics.include?(source_id)
+      when "confirmation_item"
+        item_ids = Array(stage["confirmation_items"]).map { |item| item["item_id"] }
+        errors << "field_sources.#{label}.source_id must match a confirmation_items.item_id in stage #{stage_id}" unless item_ids.include?(source_id)
       when "stage_summary"
         errors << "field_sources.#{label}.source_id must be 'summary' when source_type is stage_summary" unless source_id == "summary"
         errors << "field_sources.#{label}.stage_id must have a non-empty summary when source_type is stage_summary" if stage["summary"].to_s.strip.empty?

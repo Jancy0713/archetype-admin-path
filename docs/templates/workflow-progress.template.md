@@ -30,7 +30,10 @@
 | `init-02` | `project_profile` | `todo` | `1` | `init/init-01.project_profile.yaml` | `init/init-02.project_profile.yaml` | `init/init-02.review.yaml` | `pending` | `init-03` |
 | `init-03` | `project_profile` | `todo` | `1` | `init/init-02.project_profile.yaml` | `init/init-03.project_profile.yaml` | `init/init-03.review.yaml` | `pending` | `init-04` |
 | `init-04` | `project_profile` | `todo` | `1` | `init/init-03.project_profile.yaml` | `init/init-04.project_profile.yaml` | `init/init-04.review.yaml` | `pending` | `init-05` |
-| `init-05` | `baseline` | `todo` | `1` | `init/init-04.project_profile.yaml` | `init/init-05.baseline.yaml` | `` | `pending` | `prd-01` |
+| `init-05` | `baseline` | `todo` | `1` | `init/init-04.project_profile.yaml` | `init/init-05.baseline.yaml` | `` | `pending` | `init-06` |
+| `init-06` | `design_seed` | `todo` | `1` | `init/init-05.baseline.yaml` | `init/init-06.design_seed.yaml` | `` | `not_needed` | `init-07` |
+| `init-07` | `bootstrap_plan` | `todo` | `1` | `init/init-06.design_seed.yaml` | `init/init-07.bootstrap_plan.yaml` | `` | `pending` | `init-08` |
+| `init-08` | `execution` | `todo` | `1` | `init/init-07.bootstrap_plan.yaml` | `project-root` | `` | `not_needed` | `prd-01` |
 
 ## PRD Progress
 

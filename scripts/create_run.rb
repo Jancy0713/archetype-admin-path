@@ -254,6 +254,8 @@ def flow_command_cheat_sheet(flow, run_root)
       - `init-03` -> `identity_access`
       - `init-04` -> `experience_platform`
       - `init-05` -> `baseline`
+      - `init-06` -> `design_seed`
+      - `init-07` -> `bootstrap_plan`
 
       ### Init Commands
 
@@ -287,10 +289,24 @@ def flow_command_cheat_sheet(flow, run_root)
       ruby scripts/init/init_artifact.rb --step-id init-05 baseline #{File.join(run_root, "init/init-05.baseline.yaml")}
       ```
 
+      初始化 design_seed：
+
+      ```bash
+      ruby scripts/init/prefill_from_upstream.rb --step-id init-06 design_seed #{File.join(run_root, "init/init-05.baseline.yaml")} #{File.join(run_root, "init/init-06.design_seed.yaml")}
+      ```
+
+      初始化 bootstrap_plan：
+
+      ```bash
+      ruby scripts/init/prefill_from_upstream.rb --step-id init-07 bootstrap_plan #{File.join(run_root, "init/init-06.design_seed.yaml")} #{File.join(run_root, "init/init-07.bootstrap_plan.yaml")}
+      ```
+
       Human Gate:
 
       - 每个 reviewer 通过后的阶段确认都必须停
-      - `baseline` 通过后也必须停
+      - `baseline` 通过后必须停给人确认
+      - `design_seed` 默认自动生成，不单独停
+      - `bootstrap_plan` 生成后必须停给人确认
     MD
   when "prd"
     <<~MD

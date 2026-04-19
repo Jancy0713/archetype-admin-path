@@ -28,8 +28,15 @@ flowchart TD
     I04R --> I04H["human confirm"]
     I04H --> I05["init-05<br/>baseline"]
     I05 --> I05V["validate"]
-    I05V --> I06["后续功能默认继承 baseline"]
-    I06 -. "如需调整基线" .-> I07["init-06<br/>change_request"]
+    I05V --> I05H["human confirm<br/>baseline"]
+    I05H --> I06["init-06<br/>design_seed"]
+    I06 --> I06V["auto generate"]
+    I06V --> I07["init-07<br/>bootstrap_plan"]
+    I07 --> I07V["validate / review"]
+    I07V --> I07H["human confirm<br/>bootstrap plan"]
+    I07H --> I08["init-08<br/>execution"]
+    I08 --> P01["自动创建 prd run<br/>prd-01"]
+    I08 -. "如需调整基线" .-> C1["change_request<br/>独立流程"]
 ```
 
 ## PRD

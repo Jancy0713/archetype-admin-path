@@ -32,7 +32,10 @@
 | `init-03` | `review` | `todo / done` | `1` | `init-03.project_profile.yaml` | `init-03.review.yaml` | 人工确认 |
 | `init-04` | `project_profile` | `todo / doing / review / confirmed` | `1` | `init-03.project_profile.yaml` | `init-04.project_profile.yaml` | `init-04.review.yaml` |
 | `init-04` | `review` | `todo / done` | `1` | `init-04.project_profile.yaml` | `init-04.review.yaml` | 人工确认 |
-| `init-05` | `baseline` | `todo / doing / confirmed` | `1` | `init-04.project_profile.yaml` | `init-05.baseline.yaml` | 功能流程 |
+| `init-05` | `baseline` | `todo / doing / confirmed` | `1` | `init-04.project_profile.yaml` | `init-05.baseline.yaml` | `init-06.design_seed.yaml` |
+| `init-06` | `design_seed` | `todo / doing / done` | `1` | `init-05.baseline.yaml` | `init-06.design_seed.yaml` | `init-07.bootstrap_plan.yaml` |
+| `init-07` | `bootstrap_plan` | `todo / doing / confirmed` | `1` | `init-06.design_seed.yaml` | `init-07.bootstrap_plan.yaml` | `init-08.execution` |
+| `init-08` | `execution` | `todo / doing / done` | `1` | `init-07.bootstrap_plan.yaml` | 新项目初始化结果 | `prd-01.clarification.yaml` |
 
 ## PRD
 

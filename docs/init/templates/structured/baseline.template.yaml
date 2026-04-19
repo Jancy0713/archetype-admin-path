@@ -1,5 +1,5 @@
 artifact_type: baseline
-version: "1.0"
+version: "1.0.2"
 status:
   step: initialization_baseline
   attempt: 1
@@ -26,6 +26,7 @@ identity_access:
   tenant_model: ""
 ui_foundation:
   visual_direction: ""
+  style_recipe: ""
   theme_mode: ""
   density: ""
   navigation_style: ""
@@ -94,6 +95,11 @@ field_sources:
       source_type: ""
       source_id: ""
       note: ""
+    style_recipe:
+      stage_id: ""
+      source_type: ""
+      source_id: ""
+      note: ""
     theme_mode:
       stage_id: ""
       source_type: ""
@@ -135,12 +141,7 @@ field_sources:
       source_type: ""
       source_id: ""
       note: ""
-key_decisions: []
-recommended_defaults: []
-open_questions:
-  p0: []
-  p1: []
-  p2: []
+confirmation_items: []
 decision:
   baseline_confirmed: false
   reason: ""

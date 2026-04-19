@@ -1,5 +1,5 @@
 artifact_type: project_profile
-version: "1.0"
+version: "1.0.2"
 status:
   step: project_initialization
   attempt: 1
@@ -43,77 +43,61 @@ stages:
       summary: ""
       confirmed_by: ""
       confirmed_at: ""
-    required_questions:
-      - question_id: system_type
+    confirmation_items:
+      - item_id: system_type
         question: 这是什么类型的系统？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: audience_type
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: audience_type
         question: 这个系统主要面向外部客户、外部合作方，还是内部团队？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: default_region
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: default_region
         question: 默认地区是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: default_language
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: default_language
         question: 默认语言是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: primary_clients
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: primary_clients
         question: 主要使用端是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: core_usage_scenario
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: core_usage_scenario
         question: 这个系统的核心使用场景是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-    adaptive_questions: []
-    key_decisions:
-      # Example:
-      # - topic: ""
-      #   question: ""
-      #   explanation: ""
-      #   recommended: ""
-      #   options:
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #   allow_multiple: false
-      #   allow_custom_answer: true
-      #   default_if_no_answer: ""
-      #   must_confirm: true
-      []
-    recommended_defaults: []
-    open_questions:
-      p0:
-        # Example:
-        # - topic: ""
-        #   question: ""
-        #   explanation: ""
-        #   recommended: ""
-        #   options:
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #   allow_multiple: false
-        #   allow_custom_answer: true
-        #   must_answer: true
-        []
-      p1: []
-      p2: []
+        allow_custom_answer: true
+        default_if_no_answer: ""
   - stage_id: tenant_governance
     stage_name: 租户与管理结构
     priority: p1
@@ -126,77 +110,61 @@ stages:
       summary: ""
       confirmed_by: ""
       confirmed_at: ""
-    required_questions:
-      - question_id: tenant_model
+    confirmation_items:
+      - item_id: tenant_model
         question: 系统是单租户还是多租户？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: tenant_subject
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: tenant_subject
         question: 如果是多租户，租户代表的对象是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: platform_tenant_layers
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: platform_tenant_layers
         question: 是否存在平台级与租户级两层管理？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: org_structure_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: org_structure_needed
         question: 是否需要组织/部门结构？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: org_structure_purpose
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: org_structure_purpose
         question: 如果有组织/部门结构，它主要用于数据归属、审批流转，还是权限管理？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: governance_boundary
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: governance_boundary
         question: 平台侧、租户侧、组织侧之间的管理边界是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-    adaptive_questions: []
-    key_decisions:
-      # Example:
-      # - topic: ""
-      #   question: ""
-      #   explanation: ""
-      #   recommended: ""
-      #   options:
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #   allow_multiple: false
-      #   allow_custom_answer: true
-      #   default_if_no_answer: ""
-      #   must_confirm: true
-      []
-    recommended_defaults: []
-    open_questions:
-      p0:
-        # Example:
-        # - topic: ""
-        #   question: ""
-        #   explanation: ""
-        #   recommended: ""
-        #   options:
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #   allow_multiple: false
-        #   allow_custom_answer: true
-        #   must_answer: true
-        []
-      p1: []
-      p2: []
+        allow_custom_answer: true
+        default_if_no_answer: ""
   - stage_id: identity_access
     stage_name: 身份与权限
     priority: p1
@@ -209,82 +177,70 @@ stages:
       summary: ""
       confirmed_by: ""
       confirmed_at: ""
-    required_questions:
-      - question_id: login_method
+    confirmation_items:
+      - item_id: login_method
         question: 默认登录方式是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: account_identifier
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: account_identifier
         question: 账号的唯一标识是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: account_system
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: account_system
         question: 账号体系是平台统一账号，还是租户内独立账号？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: cross_tenant_account
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: cross_tenant_account
         question: 一个账号能否跨租户使用？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: permission_model
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: permission_model
         question: 权限模型是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: privileged_roles
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: privileged_roles
         question: 是否存在超管、平台管理员、租户管理员等高权限角色？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: member_permission_basis
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: member_permission_basis
         question: 普通成员的权限主要按角色分配，还是按组织/岗位/资源范围分配？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-    adaptive_questions: []
-    key_decisions:
-      # Example:
-      # - topic: ""
-      #   question: ""
-      #   explanation: ""
-      #   recommended: ""
-      #   options:
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #   allow_multiple: false
-      #   allow_custom_answer: true
-      #   default_if_no_answer: ""
-      #   must_confirm: true
-      []
-    recommended_defaults: []
-    open_questions:
-      p0:
-        # Example:
-        # - topic: ""
-        #   question: ""
-        #   explanation: ""
-        #   recommended: ""
-        #   options:
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #   allow_multiple: false
-        #   allow_custom_answer: true
-        #   must_answer: true
-        []
-      p1: []
-      p2: []
+        allow_custom_answer: true
+        default_if_no_answer: ""
   - stage_id: experience_platform
     stage_name: 体验与平台能力
     priority: p2
@@ -297,92 +253,97 @@ stages:
       summary: ""
       confirmed_by: ""
       confirmed_at: ""
-    required_questions:
-      - question_id: visual_direction
+    confirmation_items:
+      - item_id: visual_direction
         question: UI 风格方向是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: theme_mode
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: ui_style_recipe
+        question: 整个系统的 UI 风格方案采用什么方向？
+        level: primary
+        answer_mode: single_choice
+        recommended: ""
+        options: []
+        reason: ""
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: theme_mode
         question: 主题模式是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: navigation_style
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: navigation_style
         question: 导航方式是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: information_density
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: information_density
         question: 信息密度偏好是什么？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: notifications_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: notifications_needed
         question: 是否需要通知能力？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: audit_log_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: audit_log_needed
         question: 是否需要审计日志能力？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: export_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: export_needed
         question: 是否需要导出能力？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: upload_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: upload_needed
         question: 是否需要上传能力？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-      - question_id: i18n_needed
+        allow_custom_answer: true
+        default_if_no_answer: ""
+      - item_id: i18n_needed
         question: 是否需要国际化/多语言支持？
+        level: secondary
+        answer_mode: single_choice
         recommended: ""
         options: []
         reason: ""
-    adaptive_questions: []
-    key_decisions:
-      # Example:
-      # - topic: ""
-      #   question: ""
-      #   explanation: ""
-      #   recommended: ""
-      #   options:
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #     - value: ""
-      #       label: ""
-      #       description: ""
-      #   allow_multiple: false
-      #   allow_custom_answer: true
-      #   default_if_no_answer: ""
-      #   must_confirm: true
-      []
-    recommended_defaults: []
-    open_questions:
-      p0:
-        # Example:
-        # - topic: ""
-        #   question: ""
-        #   explanation: ""
-        #   recommended: ""
-        #   options:
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #     - value: ""
-        #       label: ""
-        #       description: ""
-        #   allow_multiple: false
-        #   allow_custom_answer: true
-        #   must_answer: true
-        []
-      p1: []
-      p2: []
+        allow_custom_answer: true
+        default_if_no_answer: ""
 decision:
   allow_baseline: false
   reason: ""

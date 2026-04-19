@@ -1,0 +1,54 @@
+artifact_type: bootstrap_plan
+version: "1.0.2"
+status:
+  step: initialization_bootstrap_plan
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  updated_at: ""
+init_execution_scope:
+  output_artifacts:
+    template_path: ""
+    target_path: ""
+  conditional_parameters: []
+  preset_capability_packs: []
+  command_blueprints: []
+  code_artifacts: []
+  ai_followups: []
+  allowed_work: []
+  excluded_work: []
+  deliverables: []
+  completion_criteria: []
+  reviewer_focus: []
+project_conventions:
+  output_artifacts:
+    template_path: ""
+    target_path: ""
+  generation_workflow: []
+  source_of_truth:
+    primary_inputs: []
+    design_seed_highlights: []
+  sections_to_fill: []
+  reviewer_focus: []
+  notes: []
+prd_bootstrap_context:
+  output_artifacts:
+    template_path: ""
+    target_path: ""
+  generation_workflow: []
+  document_goal: []
+  project_overview: []
+  confirmed_foundation: []
+  priority_modules: []
+  prd_focus: []
+  reviewer_focus: []
+  notes: []
+decision:
+  plan_confirmed: false
+  reason: ""

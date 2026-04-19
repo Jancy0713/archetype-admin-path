@@ -7,7 +7,7 @@ artifact = ARGV[0]
 path = ARGV[1]
 
 if artifact.nil? || path.nil?
-  warn "Usage: ruby scripts/init/validate_artifact.rb <project_profile|review|baseline|change_request> <artifact.yml>"
+  warn "Usage: ruby scripts/init/validate_artifact.rb <project_profile|review|baseline|design_seed|bootstrap_plan|change_request> <artifact.yml>"
   exit 1
 end
 

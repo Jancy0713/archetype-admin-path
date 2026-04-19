@@ -55,7 +55,11 @@ AI 不是每一步都要停，只在下面情况停：
 
 ## Human Confirmation Gate 输出格式
 
-停在人工确认点时，AI 不应只给一段自然语言总结，而应给出可直接决策的确认清单。
+停在人工确认点时，AI 不应机械重复 Markdown 全文，而应根据阶段类型给出适合决策的确认方式。
+
+### `init-01` 到 `init-04`
+
+这四步仍按问卷式确认输出。
 
 推荐格式：
 
@@ -83,10 +87,64 @@ c. 平台管理后台
 - 即使有选项，也应允许用户回复自定义答案
 - 只列真正还不确定、且会影响下一步推进的问题
 - 如果材料已经足够明确，不应为了走流程而重复提问
-- 推荐默认项应单独成段，不和必须确认的问题混排
+- 次要确认项可以展示“当前按推荐收敛、但用户如有异议仍可改”的内容，但不能和重点确认项重复表达同一个问题
 - 如果存在没有默认值的开放问题，必须单独标为“必须回复项”
 - 没有额外关键确认项时，应明确告诉用户只需通读 Markdown，并回复 `按推荐继续` 或按编号提出修改
 - 输出里应引用本轮渲染好的 Markdown，而不是把 YAML 原样展开给用户
+
+### `init-05 baseline`
+
+这一步不再重复 01-04 的问卷格式。
+
+要求：
+
+- 明确提示用户先通读 `rendered/init-05.baseline.md`
+- 对话里只说明“请确认 baseline 是否可以作为后续默认输入”
+- 如果没有额外争议点，不要再拆“必须回复项 / 重点确认项 / 次要确认项”
+- 默认回复方式应简化为：
+  - `baseline 确认，继续`
+  - 或直接指出“把 xxx 改成 yyy”
+
+### `init-07 bootstrap_plan`
+
+这一步应把 `design_seed` 和 `bootstrap_plan` 一起给用户看，但只在 `bootstrap_plan` 关口停一次。
+
+要求：
+
+- 明确提示用户先通读 `rendered/init-06.design_seed.md` 与 `rendered/init-07.bootstrap_plan.md`
+- 如当前 `bootstrap_plan` 已包含 3 个子文档，也要一并提示用户通读相应内容
+- 对话里重点说明：请确认这份 bootstrap plan 是否足够具体、是否能直接指导初始化基座实现
+- 这一步必须额外询问一个固定问题：项目名称是什么
+- 项目名称必须提供 3 个候选，并默认推荐 `a`
+- 若用户未对项目名称提出异议，则默认采用 `a`
+- 同时固定告知 `init-08` 默认执行参数：
+  - 初始化目录：当前项目根目录
+  - git 处理：默认删除现有 `.git`
+  - 可选修改：
+    - `项目名称改为 [b]`
+    - `项目名称改为 [自定义: xxx]`
+    - `初始化目录改为 /abs/path`
+    - `保留 git`
+    - `保留 git，remote-url 改为 https://...`
+- 不要再套用 01-04 的编号问答格式，除非当前真的有尚未收敛的明确选项题
+- 默认回复方式应简化为：
+  - `bootstrap_plan 确认，继续`
+  - 或直接指出“把 xxx 改成 yyy”
+
+### `init-08 execution`
+
+`init-08` 不再是 `change_request`。
+
+它的职责是：
+
+- 按 `Init Execution Scope` 初始化项目
+- 先生成 run 内专用 `prompts/init-08-execution-prompt.md`
+- 由执行代理完成工程初始化命令和 AI 补强
+- 初始化完成后，自动执行 `post_init_to_prd.rb`
+- 自动创建新的 `prd` run
+- 自动把干净版 `PRD Bootstrap Context` 注入新的 PRD run
+- 自动预填新的 `raw/request.md`
+- 自动生成明确引用规则文档的 PRD 启动提示词
 
 ## Init 停点
 
@@ -97,6 +155,9 @@ c. 平台管理后台
 3. `init-03` reviewer 通过后，等待人工确认 `identity_access`
 4. `init-04` reviewer 通过后，等待人工确认 `experience_platform`
 5. `init-05 baseline` 生成并通过校验后，等待人工确认基线定稿
+6. `init-06 design_seed` 默认自动生成，不单独停给人，但在 `init-07` 前应渲染 Markdown，供用户和 `bootstrap_plan` 一起通读
+7. `init-07 bootstrap_plan` 生成后，等待人工确认初始化底座计划
+8. `init-08 execution` 在用户确认后执行初始化，并自动启动新的 PRD run
 
 也就是说，`init` 是“阶段内自动跑通，阶段末停给人确认”。
 

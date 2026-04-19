@@ -37,7 +37,8 @@
 - `init-04.project_profile.yaml`
 - `init-04.review.yaml`
 - `init-05.baseline.yaml`
-- `init-06.change_request.yaml`
+- `init-06.design_seed.yaml`
+- `init-07.bootstrap_plan.yaml`
 
 ### YAML 元信息
 
@@ -57,13 +58,16 @@ meta:
 | `init-03` | `identity_access` 阶段画像 | `project_profile` |
 | `init-04` | `experience_platform` 阶段画像 | `project_profile` |
 | `init-05` | 初始化基线定稿 | `baseline` |
-| `init-06` | 基线变更 | `change_request` |
+| `init-06` | 设计约束基线 | `design_seed` |
+| `init-07` | 初始化底座计划 | `bootstrap_plan` |
+| `init-08` | 初始化执行 | `execution` |
 
 说明：
 
 - 同一步的 reviewer 产物复用同一个 `step_id`
 - 同一步内的返工不升级 `step_id`，只增加 `status.attempt`
 - 只有进入下一个正式阶段快照时，才进入新的 `step_id`
+- `change_request` 保持为独立流程，不再占用 `init-08`
 
 ## 初始化命令示例
 

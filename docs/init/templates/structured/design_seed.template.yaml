@@ -1,0 +1,38 @@
+artifact_type: design_seed
+version: "1.0.2"
+status:
+  step: initialization_design_seed
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  updated_at: ""
+design_context:
+  current_baseline: ""
+  selected_style_recipe: ""
+  source_style_reference: ""
+  generation_policy: ""
+theme_strategy:
+  default_mode: ""
+  supports_dark_mode: ""
+  density_strategy: ""
+  navigation_principle: ""
+token_baseline:
+  spacing_scale: []
+  radius_scale: []
+  shadow_scale: []
+  typography_scale: []
+  color_roles: []
+layout_principles:
+  app_shell: ""
+  page_patterns: []
+  component_principles: []
+  prohibited_patterns: []
+decision:
+  seed_ready: false
+  reason: ""
