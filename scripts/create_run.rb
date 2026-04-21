@@ -3,6 +3,8 @@ require "fileutils"
 require "pathname"
 require "time"
 require "date"
+require_relative "init/workflow_manifest"
+require_relative "progress_board"
 
 ROOT = File.expand_path("..", __dir__)
 
@@ -74,6 +76,37 @@ end
 def copy_template(template_path, target_path)
   FileUtils.mkdir_p(File.dirname(target_path))
   FileUtils.cp(template_path, target_path)
+end
+
+def normalize_progress_template(progress_path, flow)
+  lines = File.readlines(progress_path, chomp: true)
+  section_headers = [
+    "## Meta",
+    "## Current Focus",
+    "## Inputs",
+    "## Init Progress",
+    "## PRD Progress",
+    "## Decisions",
+    "## Handoff Notes",
+    "## Status Legend",
+    "## Update Rules"
+  ]
+
+  current_section = nil
+  filtered = lines.select do |line|
+    current_section = line if section_headers.include?(line)
+
+    case current_section
+    when "## Init Progress"
+      flow == "init"
+    when "## PRD Progress"
+      flow == "prd"
+    else
+      true
+    end
+  end
+
+  File.write(progress_path, filtered.join("\n") + "\n")
 end
 
 def run_command(*command)
@@ -196,25 +229,29 @@ def build_handoff_content
   <<~MD
     # Handoff Notes
 
-    - 
+    - reviewer 必须由独立 reviewer 子 agent 或独立新上下文执行，主 agent 不得自己兼任 reviewer。
+    - `init-07` 用户确认通过后，不要继续复用 `init-01` 到 `init-07` 的长对话直接跑 `init-08`。
+    - 应先生成 `prompts/init-08-execution-prompt.md`，再新开一个干净上下文，把整段 prompt 交给新的执行代理。
   MD
 end
 
 def build_init_prompt(run_root, title)
   build_autonomous_prompt(
     flow: "init",
+    template_path: File.join(ROOT, "docs/templates/autonomous-run-prompt.template.md"),
     run_root: run_root,
-    first_step_id: "init-01",
-    first_artifact: "init/init-01.project_profile.yaml",
-    first_review: "init/init-01.review.yaml",
-    validate_command: "ruby scripts/init/validate_artifact.rb project_profile #{File.join(run_root, 'init/init-01.project_profile.yaml')}",
-    render_command: "ruby scripts/init/render_artifact.rb project_profile #{File.join(run_root, 'init/init-01.project_profile.yaml')} #{File.join(run_root, 'rendered/init-01.project_profile.md')}"
+    first_step_id: InitFlow::WorkflowManifest.first_step_id,
+    first_artifact: InitFlow::WorkflowManifest.first_artifact_relative_path,
+    first_review: InitFlow::WorkflowManifest.first_review_relative_path,
+    validate_command: InitFlow::WorkflowManifest.first_validate_command(run_root),
+    render_command: InitFlow::WorkflowManifest.first_render_command(run_root)
   )
 end
 
 def build_prd_prompt(run_root, title)
   build_autonomous_prompt(
     flow: "prd",
+    template_path: File.join(ROOT, "docs/templates/autonomous-run-prompt.prd.template.md"),
     run_root: run_root,
     first_step_id: "prd-01",
     first_artifact: "prd/prd-01.clarification.yaml",
@@ -224,14 +261,16 @@ def build_prd_prompt(run_root, title)
   )
 end
 
-def build_autonomous_prompt(flow:, run_root:, first_step_id:, first_artifact:, first_review:, validate_command:, render_command:)
-  template = File.read(File.join(ROOT, "docs/templates/autonomous-run-prompt.template.md"))
+def build_autonomous_prompt(flow:, template_path:, run_root:, first_step_id:, first_artifact:, first_review:, validate_command:, render_command:)
+  template = File.read(template_path)
   replacements = {
     "{{FLOW}}" => flow,
     "{{RUN_ROOT}}" => run_root,
     "{{FLOW_README}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/README.md",
     "{{FLOW_WORKFLOW_GUIDE}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/WORKFLOW_GUIDE.md",
     "{{FLOW_STEP_GUIDE}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/STEP_NAMING_GUIDE.md",
+    "{{FLOW_PROMPTS_INDEX}}" => flow == "init" ? "/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md" : "/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/MASTER_PROMPT.md",
+    "{{FLOW_REFACTOR_GUIDE}}" => flow == "init" ? "/Users/wangwenjie/project/archetype-admin-path/docs/init/WORKFLOW_REFACTOR_GUIDE.md" : "/Users/wangwenjie/project/archetype-admin-path/docs/prd/WORKFLOW_GUIDE.md",
     "{{FIRST_STEP_ID}}" => first_step_id,
     "{{FIRST_ARTIFACT}}" => first_artifact,
     "{{FIRST_REVIEW}}" => first_review,
@@ -246,68 +285,7 @@ end
 def flow_command_cheat_sheet(flow, run_root)
   case flow
   when "init"
-    <<~MD
-      ### Init Step Map
-
-      - `init-01` -> `foundation_context`
-      - `init-02` -> `tenant_governance`
-      - `init-03` -> `identity_access`
-      - `init-04` -> `experience_platform`
-      - `init-05` -> `baseline`
-      - `init-06` -> `design_seed`
-      - `init-07` -> `bootstrap_plan`
-
-      ### Init Commands
-
-      初始化阶段画像：
-
-      ```bash
-      ruby scripts/init/init_artifact.rb --step-id init-02 project_profile #{File.join(run_root, "init/init-02.project_profile.yaml")}
-      ```
-
-      初始化 reviewer：
-
-      ```bash
-      ruby scripts/init/init_artifact.rb --step project_initialization --step-id init-01 review #{File.join(run_root, "init/init-01.review.yaml")}
-      ```
-
-      校验主产物：
-
-      ```bash
-      ruby scripts/init/validate_artifact.rb project_profile #{File.join(run_root, "init/init-01.project_profile.yaml")}
-      ```
-
-      渲染主产物：
-
-      ```bash
-      ruby scripts/init/render_artifact.rb project_profile #{File.join(run_root, "init/init-01.project_profile.yaml")} #{File.join(run_root, "rendered/init-01.project_profile.md")}
-      ```
-
-      初始化 baseline：
-
-      ```bash
-      ruby scripts/init/init_artifact.rb --step-id init-05 baseline #{File.join(run_root, "init/init-05.baseline.yaml")}
-      ```
-
-      初始化 design_seed：
-
-      ```bash
-      ruby scripts/init/prefill_from_upstream.rb --step-id init-06 design_seed #{File.join(run_root, "init/init-05.baseline.yaml")} #{File.join(run_root, "init/init-06.design_seed.yaml")}
-      ```
-
-      初始化 bootstrap_plan：
-
-      ```bash
-      ruby scripts/init/prefill_from_upstream.rb --step-id init-07 bootstrap_plan #{File.join(run_root, "init/init-06.design_seed.yaml")} #{File.join(run_root, "init/init-07.bootstrap_plan.yaml")}
-      ```
-
-      Human Gate:
-
-      - 每个 reviewer 通过后的阶段确认都必须停
-      - `baseline` 通过后必须停给人确认
-      - `design_seed` 默认自动生成，不单独停
-      - `bootstrap_plan` 生成后必须停给人确认
-    MD
+    InitFlow::WorkflowManifest.command_cheat_sheet(run_root)
   when "prd"
     <<~MD
       ### PRD Step Map
@@ -369,17 +347,30 @@ end
 
 def update_progress_meta(progress_path, run_id:, owner:, flow:)
   lines = File.readlines(progress_path, chomp: true)
+  initial_meta =
+    if flow == "init"
+      InitFlow::WorkflowManifest.initial_progress_meta
+    else
+      {
+        "current_step_id" => "prd-01",
+        "overall_status" => "doing",
+        "current_goal" => "完成首个结构化 YAML",
+        "current_blocker" => "",
+        "next_agent_input" => "raw/request.md",
+        "next_expected_output" => "prd/prd-01.clarification.yaml"
+      }
+    end
   replacements = {
     "- run_id:" => "- run_id: #{run_id}",
     "- owner:" => "- owner: #{owner}",
     "- started_at:" => "- started_at: #{Time.now.iso8601}",
     "- current_flow:" => "- current_flow: #{flow}",
-    "- current_step_id:" => "- current_step_id: #{flow == 'init' ? 'init-01' : 'prd-01'}",
-    "- overall_status:" => "- overall_status: doing",
-    "- current_goal:" => "- current_goal: 完成首个结构化 YAML",
+    "- current_step_id:" => "- current_step_id: #{initial_meta.fetch('current_step_id')}",
+    "- overall_status:" => "- overall_status: #{initial_meta.fetch('overall_status')}",
+    "- current_goal:" => "- current_goal: #{initial_meta.fetch('current_goal')}",
     "- current_blocker:" => "- current_blocker: ",
-    "- next_agent_input:" => "- next_agent_input: raw/request.md",
-    "- next_expected_output:" => "- next_expected_output: #{flow == 'init' ? 'init/init-01.project_profile.yaml' : 'prd/prd-01.clarification.yaml'}",
+    "- next_agent_input:" => "- next_agent_input: #{initial_meta.fetch('next_agent_input')}",
+    "- next_expected_output:" => "- next_expected_output: #{initial_meta.fetch('next_expected_output')}",
     "- raw_request:" => "- raw_request: raw/request.md",
     "- attachments:" => "- attachments: raw/attachments/",
     "- baseline_if_any:" => "- baseline_if_any: "
@@ -391,15 +382,10 @@ def update_progress_meta(progress_path, run_id:, owner:, flow:)
   end
 
   first_step_id = flow == "init" ? "`init-01`" : "`prd-01`"
-  updated = updated.map do |line|
-    if line.start_with?("| #{first_step_id} |")
-      line.sub("| `todo` |", "| `doing` |")
-    else
-      line
-    end
-  end
-
   File.write(progress_path, updated.join("\n") + "\n")
+  board = WorkflowProgressBoard::Board.new(progress_path)
+  board.update_row(first_step_id.delete("`"), status: "doing")
+  board.save
 end
 
 options = parse_args(ARGV)
@@ -431,14 +417,15 @@ end
 write_file(File.join(run_root, "raw/README.md"), build_raw_readme)
 
 copy_template(File.join(ROOT, "docs/templates/workflow-progress.template.md"), File.join(run_root, "progress/workflow-progress.md"))
+normalize_progress_template(File.join(run_root, "progress/workflow-progress.md"), flow)
 update_progress_meta(File.join(run_root, "progress/workflow-progress.md"), run_id: run_id, owner: owner, flow: flow)
 write_file(File.join(run_root, "progress/decisions.md"), build_decisions_content)
 write_file(File.join(run_root, "progress/handoff-notes.md"), build_handoff_content)
 
 case flow
 when "init"
-  artifact_path = File.join(run_root, "init/init-01.project_profile.yaml")
-  run_command("ruby", File.join(ROOT, "scripts/init/init_artifact.rb"), "--step-id", "init-01", "project_profile", artifact_path)
+  artifact_path = File.join(run_root, InitFlow::WorkflowManifest.first_artifact_relative_path)
+  run_command("ruby", File.join(ROOT, "scripts/init/profile/init_project_profile_step.rb"), run_root, InitFlow::WorkflowManifest.first_step_id)
   prompt_content = build_init_prompt(run_root, title)
 when "prd"
   artifact_path = File.join(run_root, "prd/prd-01.clarification.yaml")
@@ -456,8 +443,12 @@ puts "1. 把一句话需求或项目背景写到：#{relative_to_root(File.join(
 puts "2. 把 PRD、原型、截图等原始材料放到：#{relative_to_root(File.join(run_root, 'raw/attachments'))}"
 puts "3. 如果原始材料是 PDF、Word、Excel，建议先转一份 Markdown 再一起放进去"
 puts "4. 放好材料后，打开这个文件，把里面整段提示词交给 AI 开始本轮流程：#{relative_to_root(File.join(run_root, 'prompts/run-agent-prompt.md'))}"
+if flow == "init"
+  puts "5. 如果流程推进到 `init-07 -> init-08`，必须改为新开上下文执行 `prompts/init-08-execution-prompt.md`；不要继续复用前面 01-07 的长对话"
+end
 puts
 puts "补充参考："
 puts "- 原始输入说明：#{relative_to_root(File.join(run_root, 'raw/README.md'))}"
 puts "- 进度板：#{relative_to_root(File.join(run_root, 'progress/workflow-progress.md'))}"
+puts "- 交接说明：#{relative_to_root(File.join(run_root, 'progress/handoff-notes.md'))}"
 puts "- 首个正式产物会写到：#{relative_to_root(artifact_path)}"

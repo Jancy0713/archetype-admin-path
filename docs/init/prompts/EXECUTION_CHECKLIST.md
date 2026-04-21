@@ -1,5 +1,14 @@
 # 执行清单
 
+分组版本：
+
+- [profile/EXECUTION_CHECKLIST.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/profile/EXECUTION_CHECKLIST.md)
+- [foundation/EXECUTION_CHECKLIST.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/foundation/EXECUTION_CHECKLIST.md)
+- [bootstrap/EXECUTION_CHECKLIST.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/bootstrap/EXECUTION_CHECKLIST.md)
+- [execution/EXECUTION_CHECKLIST.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/execution/EXECUTION_CHECKLIST.md)
+
+这份文件继续保留为总览索引与全流程清单。
+
 ## Step 1：项目画像
 
 主模型输入：
@@ -90,6 +99,8 @@ reviewer 输入：
 - 是否把项目特征、页面模式和后台壳层细节真正补进了 design_seed
 - 是否已经通过：
   - `ruby scripts/init/validate_artifact.rb design_seed path/to/design_seed.yaml`
+- 是否已进入 reviewer 审查，再决定是否允许生成 `bootstrap_plan`
+- 是否注意到这一步不单独停给人，而是在 `init-07` 一并给用户确认
 
 ## Step 5：bootstrap_plan
 
@@ -107,6 +118,12 @@ reviewer 输入：
 - 是否已经体现 design_seed / baseline 的具体项目特征，而不是通用后台模板
 - 是否已经通过：
   - `ruby scripts/init/validate_artifact.rb bootstrap_plan path/to/bootstrap_plan.yaml`
+- 是否已进入 reviewer 审查，再决定是否允许进入 human gate
+- 是否已额外生成 `rendered/init-07.project-conventions.md`，供 human gate 一并确认项目长期规则
+- 是否已额外生成 `rendered/init-07.prd-bootstrap-context.md`，供 human gate 一并确认下一轮 PRD 输入
+- 是否已额外生成 `rendered/init-07.init-execution-scope.md`，供 human gate 一并确认
+- human gate 是否同时给出 3 个项目名称候选与 2 到 3 个目录名称 slug 候选
+- 默认初始化位置是否被明确表达为“当前工作区根目录下创建目录 `<目录名称>`，且该目录本身就是项目根目录”
 
 ## Step 6：init-08 execution
 
@@ -115,28 +132,33 @@ reviewer 输入：
 - 已确认的 `bootstrap_plan`
 - `rendered/init-06.design_seed.md`
 - `rendered/init-07.bootstrap_plan.md`
-- `prompts/init-08-execution-prompt.md`
+- `rendered/init-07.init-execution-scope.md`
 - 用户确认后的项目名称
+- 用户确认后的目录名称
 - 用户如有指定，则带上自定义初始化目录 / git 处理参数
 
 执行要求：
 
-- 先通过 `scripts/init/execute_init_scope.rb` 生成 `Init Execution Scope`、干净版 `project-conventions` 和 run 内执行 prompt
-- 再把 `prompts/init-08-execution-prompt.md` 交给执行代理
-- 执行代理按 `Init Execution Scope` 初始化项目
-- 默认初始化目录为当前项目根目录
+- 先通过 `scripts/init/execute_init_scope.rb` 基于已确认参数生成 run 内待落位的 `rendered/init-08.project-conventions.md`、执行 prompt 和 reviewer prompt
+- 然后明确告知用户新开一个干净上下文
+- 再把 `prompts/init-08-execution-prompt.md` 整段交给新的执行代理
+- 执行代理按 `Init Execution Scope` 初始化项目，并把规则文档写入实际代码目录 `docs/project/project-conventions.md`
+- 默认初始化目录为当前工作区根目录下的 `<目录名称>`，该目录本身就是实际项目根目录
 - 默认删除现有 `.git`
 - 如果用户要求保留 `.git`，则按用户要求处理；如同时给出 `remote-url`，则设置对应 remote
 - 初始化完成后必须先向用户汇报：
   - 本次初始化完成了哪些工作
   - 写入了哪些关键文档
   - 生成了哪些工程骨架或基础能力
-- 然后自动继续：
+- 然后必须把 `prompts/init-08-reviewer-prompt.md` 整段交给独立 reviewer 子 agent 或独立新上下文
+- reviewer 通过后再自动继续：
   - 执行 `ruby scripts/init/post_init_to_prd.rb ...`
   - 创建新的 `prd` run
-  - 把干净版 `PRD Bootstrap Context` 注入新的 PRD run
+  - 注入 `raw/attachments/confirmed-foundation.md`
+  - 注入 `raw/attachments/base-modules-prd.md`
   - 预填新的 `raw/request.md`
   - 生成新的 PRD 启动提示词
+  - 上述注入内容应直接来自已清洗的 `prd-bootstrap-context`，不在 `init-08` 再做二次去味或兼容旧脏内容
 
 ## Step 7：初始化变更
 
@@ -150,4 +172,8 @@ reviewer 输入：
   - `ruby scripts/init/validate_artifact.rb <type> <artifact.yml>`
 - 脚本校验失败时，不进入 reviewer，直接返工修正 YAML
 - `project_profile` 默认按多阶段多轮更新同一个 YAML，而不是一次性填满
-- 每个阶段都必须单独经过：AI 产出 -> 脚本校验 -> reviewer -> Human Confirmation Gate
+- `init-01` 到 `init-04` 默认经过：AI 产出 -> 脚本校验 -> reviewer -> Human Confirmation Gate
+- `init-05` 默认经过：AI 产出 -> 脚本校验 -> Human Confirmation Gate
+- `init-06` 默认经过：AI 产出 -> 脚本校验 -> reviewer -> 进入 `init-07`
+- `init-07` 默认经过：AI 产出 -> 脚本校验 -> reviewer -> Human Confirmation Gate
+- `init-08` 默认经过：执行代理初始化 -> 独立 reviewer 审查 -> post_init_to_prd

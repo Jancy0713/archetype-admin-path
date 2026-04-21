@@ -206,9 +206,12 @@ runs/<run-id>/archive/
 2. 在 `init/` 初始化当前步骤 YAML
 3. 让主模型填写 YAML
 4. 跑脚本校验
-5. 让 reviewer 产出同一步的 review YAML
+5. 让独立 reviewer 子 agent 或独立新上下文产出同一步的 review YAML
 6. 在 `progress/` 记录人工确认和当前状态
-7. 再进入下一步
+7. `init-07` 确认通过后，生成 `prompts/init-08-execution-prompt.md` 与 `prompts/init-08-reviewer-prompt.md`
+8. 新开一个干净上下文，把 `prompts/init-08-execution-prompt.md` 交给新的执行代理
+9. 执行代理完成 `init-08` 后，再把 `prompts/init-08-reviewer-prompt.md` 交给独立 reviewer
+10. reviewer 通过后，再由执行代理继续 `post_init_to_prd.rb`
 
 ### PRD
 

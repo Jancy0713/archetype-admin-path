@@ -53,10 +53,6 @@ content = <<~MD
 
   #{numbered_lines(context["document_goal"])}
 
-  ### 生成方式
-
-  #{numbered_lines(context["generation_workflow"])}
-
   ## 2. 项目概况
 
   #{numbered_lines(context["project_overview"])}

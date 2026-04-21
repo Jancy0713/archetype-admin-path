@@ -345,8 +345,7 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
         "预置项目级 provider、样式入口和基础目录骨架"
       ],
       "install_commands" => [
-        "pnpm create refine@latest <app-name> --template refine-vite",
-        "pnpm add @refinedev/core @refinedev/react-router @refinedev/kbar",
+        "pnpm create refine-app@latest <app-name>",
         "pnpm dlx shadcn@latest init",
         "pnpm dlx shadcn@latest add button input card table form label textarea select badge dialog sheet dropdown-menu skeleton tabs toast"
       ],
@@ -444,7 +443,7 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
   template["init_execution_scope"] = {
     "output_artifacts" => {
       "template_path" => File.expand_path("docs/init/templates/init-execution-scope.template.md", ROOT),
-      "target_path" => "rendered/init-08.init-execution-scope.md"
+      "target_path" => "rendered/init-07.init-execution-scope.md"
     },
     "conditional_parameters" => [
       {
@@ -495,10 +494,10 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
     ],
     "preset_capability_packs" => preset_packs,
     "command_blueprints" => [
-      "在目标项目目录执行 refine 官方脚手架，生成当前项目的基础工程，不混入业务模块模板",
+      "在当前工作区根目录下，以已确认的目录 slug 创建项目目录，并在该目录执行 refine 官方 create-refine-app CLI 生成基础工程；该目录本身就是项目根目录，不混入业务模块模板",
       "执行 shadcn 官方初始化命令，完成 components.json、样式入口和基础组件接入",
       "安装基础 UI 依赖，包括 shadcn 组件扩展、样式工具、token 工具和基础动画依赖",
-      "生成 run 内执行范围文档 rendered/init-08.init-execution-scope.md，并写入固定项目规则文件 docs/project/project-conventions.md",
+      "生成 run 内执行范围文档 rendered/init-07.init-execution-scope.md，并写入固定项目规则文件 docs/project/project-conventions.md",
       "生成主题代码骨架，包括 src/theme/tokens.ts、src/theme/semantic-colors.ts、src/theme/index.ts、src/styles/theme.css",
       "生成 provider 骨架，预置 src/app/providers 下的主题、通知、平台能力入口",
       ("如果 i18n=enabled，则安装 i18next 相关依赖并生成 src/i18n/*" if i18n_enabled),
@@ -510,7 +509,7 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
       "执行 reviewer 校验，检查预制结果和 AI 补强结果是否仍停留在工程基座层"
     ].compact,
     "code_artifacts" => [
-      "rendered/init-08.init-execution-scope.md",
+      "rendered/init-07.init-execution-scope.md",
       "docs/project/project-conventions.md",
       "src/theme/tokens.ts",
       "src/theme/index.ts",
@@ -530,7 +529,7 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
     ],
     "allowed_work" => [
       "#{project_label} 的 #{request_stack.empty? ? '前端工程' : request_stack} 初始化、依赖安装与目录基座约定",
-      "design_seed 已确认的 theme/token、样式组织方式和组件封装约束落入工程骨架",
+      "以已确认的目录 slug 作为实际项目根目录名创建工程，并把 design_seed 已确认的 theme/token、样式组织方式和组件封装约束落入工程骨架",
       "#{platform_capabilities.join('、')} 等平台默认能力的工程扩展位与文档落位，但不写具体业务接口",
       "#{platform_defaults['i18n'].to_s.include?('不') ? '简体中文默认文案基线与未来 i18n 扩展位' : 'i18n 机制与扩展位'}"
     ],
@@ -541,7 +540,7 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
       "任何依赖真实业务对象、真实后端接口或演示性假数据流程的页面与代码"
     ],
     "deliverables" => [
-      "初始化后的工程目录、基础依赖和可持续扩展的项目骨架",
+      "以已确认目录 slug 命名的项目根目录、基础依赖和可持续扩展的项目骨架",
       "与“#{theme_mode} / #{density_strategy} / #{style_recipe}”一致的 token 与样式基线文件",
       "固定路径的项目规则文件与本次 init 流程内的第8步执行范围文件",
       "可直接进入下一轮 PRD 的基础上下文材料"
@@ -617,9 +616,9 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
       "reviewer 必须检查该文档是否仍然停留在基础 PRD 范围，没有混入任何具体业务功能前提或流程规则"
     ],
     "document_goal" => [
-      "把 init-01 到 init-04 已确认的项目基础结论整理成下一轮 PRD 的基础输入。",
+      "把 init-01 到 init-04 已确认的项目基础结论整理成下一轮 PRD 的固定输入。",
       "让下一轮 PRD 先围绕登录、账号、租户、权限这类基础模块展开，而不是提前进入具体业务功能。",
-      "把这份文档写成“基础 PRD 初稿”，供后续 PRD 继续拆解和实现。"
+      "把这份文档写成可直接拆分为稳定前提与基础模块需求的内容母本。"
     ],
     "project_overview" => compact_lines(
       "项目定位：#{generalized_project_type.empty? ? project_type : generalized_project_type}",
@@ -721,10 +720,8 @@ def build_bootstrap_plan(source_data, target_step_id, source_path)
       "是否混入任何具体业务对象、业务页面、业务消息流或业务审批流程"
     ],
     "notes" => [
-      "prd_bootstrap_context 是本次 init 流程交给下一轮 PRD 的执行依据，不是项目内长期规则文件。",
-      "项目内长期保留并被全局复用的规则文件仍然只有 docs/project/project-conventions.md。",
-      "如后续发现 init 问卷里确认的项目级前提需要整体改动，应进入独立的初始化变更流程。",
-      "如后续业务方向发生变化，不应回填进这份基础 PRD，而应在后续业务 PRD 中重新建立业务上下文。"
+      "项目长期规则以 docs/project/project-conventions.md 为准。",
+      "本文档只覆盖基础模块输入，不覆盖具体业务功能方向。"
     ]
   }
 

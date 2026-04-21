@@ -37,7 +37,7 @@ artifact = args[0]
 target = args[1]
 
 if artifact.nil? || target.nil?
-  warn "Usage: ruby scripts/init/init_artifact.rb [--force] [--step project_initialization] [--step-id init-01] [--flow-id init] [--artifact-id init-01.project_profile] <project_profile|review|baseline|design_seed|bootstrap_plan|change_request> <target.yml>"
+  warn "Usage: ruby scripts/init/init_artifact.rb [--force] [--step project_initialization|initialization_design_seed|initialization_bootstrap_plan] [--step-id init-01] [--flow-id init] [--artifact-id init-01.project_profile] <project_profile|review|baseline|design_seed|bootstrap_plan|change_request> <target.yml>"
   exit 1
 end
 

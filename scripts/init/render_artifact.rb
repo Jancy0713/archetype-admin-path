@@ -100,6 +100,60 @@ def enabled_platform_capabilities(platform_defaults)
   items
 end
 
+def unique_compact(items)
+  Array(items).map { |item| item.to_s.strip }.reject(&:empty?).uniq
+end
+
+def slugify_ascii(text)
+  ascii = text.to_s.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
+  ascii.empty? ? nil : ascii
+end
+
+def bootstrap_name_seed(data)
+  meta_title = data.dig("meta", "title").to_s
+  seed = meta_title.sub(/\s*-\s*初始化底座计划\z/, "").sub(/初始化基线\z/, "").strip
+  return seed unless seed.empty?
+
+  project_overview = Array(data.dig("prd_bootstrap_context", "project_overview"))
+  positioning = project_overview.find { |item| item.start_with?("项目定位：") }.to_s.sub("项目定位：", "").strip
+  positioning
+end
+
+def bootstrap_project_name_candidates(data)
+  seed = bootstrap_name_seed(data)
+  normalized = seed.dup
+  normalized = normalized.gsub("系统商家端", "商家端")
+  normalized = normalized.gsub("商家端系统", "商家端")
+  normalized = normalized.gsub("AI视频生成", "AI视频")
+  normalized = normalized.gsub("后台", "管理后台")
+  base = normalized.empty? ? "项目管理后台" : normalized
+
+  candidates = []
+  candidates << "#{base}管理系统" unless base.end_with?("管理系统")
+  candidates << "#{base}管理后台" unless base.end_with?("管理后台")
+  candidates << "#{base}工作台" unless base.end_with?("工作台")
+  unique_compact(candidates).first(3)
+end
+
+def bootstrap_slug_candidates(data)
+  project_overview = Array(data.dig("prd_bootstrap_context", "project_overview")).join(" ")
+  audience_token = project_overview.include?("商家") ? "merchant" : "admin"
+  domain_token =
+    if project_overview.include?("AI") || data.dig("meta", "title").to_s.include?("AI")
+      "ai-video"
+    else
+      "app"
+    end
+
+  candidates = [
+    "#{audience_token}-#{domain_token}-admin",
+    "#{domain_token}-#{audience_token}-admin",
+    "#{audience_token}-#{domain_token}-workspace"
+  ]
+
+  unique_compact(candidates.map { |item| slugify_ascii(item) }).first(3)
+end
+
 def alphabet_label(index)
   alphabet = ("a".."z").to_a
   return alphabet[index] if index < alphabet.length
@@ -407,32 +461,22 @@ def render_bootstrap_plan_summary(data)
   sections = []
   scope = data["init_execution_scope"] || {}
   scope_outputs = scope["output_artifacts"] || {}
+  scope_preview_path = scope_outputs["target_path"]
   sections << [
-    "### 第8步执行范围",
+    "### 本次确认材料",
     "",
-    "- 模板文件：#{format_value(scope_outputs['template_path'])}",
-    "- 项目内目标路径：#{format_value(scope_outputs['target_path'])}",
-    "- 允许执行：#{format_value(scope['allowed_work'])}",
-    "- 明确不做：#{format_value(scope['excluded_work'])}",
-    "- 预期交付：#{format_value(scope['deliverables'])}",
-    "- 完成标准：#{format_value(scope['completion_criteria'])}",
-    "- reviewer 重点：#{format_value(scope['reviewer_focus'])}"
+    "- `#{format_value(scope_preview_path)}`：确认第8步允许做什么、不做什么、交付什么，以及做到什么程度算完成。"
   ].join("\n")
 
   conventions = data["project_conventions"] || {}
   outputs = conventions["output_artifacts"] || {}
-  source = conventions["source_of_truth"] || {}
+  conventions_preview_path = "rendered/init-07.project-conventions.md"
   sections << [
     "### 项目长期规则",
     "",
-    "- 模板文件：#{format_value(outputs['template_path'])}",
-    "- 项目内目标路径：#{format_value(outputs['target_path'])}",
-    "- 生成方式：#{format_value(conventions['generation_workflow'])}",
-    "- 规则来源：#{format_value(source['primary_inputs'])}",
-    "- design_seed 重点：#{format_value(source['design_seed_highlights'])}",
-    "- 待填写章节：#{format_value(conventions['sections_to_fill'])}",
-    "- reviewer 重点：#{format_value(conventions['reviewer_focus'])}",
-    "- 备注：#{format_value(conventions['notes'])}"
+    "- 当前确认材料：`#{conventions_preview_path}`",
+    "- 后续项目固定路径：`#{format_value(outputs['target_path'])}`",
+    "- 用途：沉淀项目长期复用的视觉、页面模式、组件封装与禁止项规则；后续 PRD、开发、review 默认读取项目固定路径。"
   ].join("\n")
 
   prd_context = data["prd_bootstrap_context"] || {}
@@ -440,23 +484,43 @@ def render_bootstrap_plan_summary(data)
   sections << [
     "### 下一轮 PRD 交接",
     "",
-    "- 模板文件：#{format_value(prd_outputs['template_path'])}",
-    "- 流程内目标路径：#{format_value(prd_outputs['target_path'])}",
-    "- 生成方式：#{format_value(prd_context['generation_workflow'])}",
-    "- 文档目标：#{format_value(prd_context['document_goal'])}",
-    "- 项目概况：#{format_value(prd_context['project_overview'])}",
-    "- 已确认基础前提：#{format_value(prd_context['confirmed_foundation'])}",
-    "- 基础模块：#{format_value(Array(prd_context['priority_modules']).map { |item| "#{item['name']}：#{item['objective']}" })}",
-    "- 本轮 PRD 关注点：#{format_value(prd_context['prd_focus'])}",
-    "- reviewer 重点：#{format_value(prd_context['reviewer_focus'])}",
-    "- 说明：#{format_value(prd_context['notes'])}"
+    "- 当前确认材料：`#{format_value(prd_outputs['target_path'])}`",
+    "- 用途：给下一轮 PRD 提供基础输入，承接项目概况、已确认前提与基础模块方向；它不是项目长期规则文件。"
+  ].join("\n")
+
+  sections << [
+    "### 后续使用方式",
+    "",
+    "- `init-08` 执行时，直接以 `#{format_value(scope_preview_path)}` 作为工程初始化范围依据。",
+    "- 工程初始化完成后，把已确认的长期规则写入 `#{format_value(outputs['target_path'])}`。",
+    "- 下一轮 `prd` 直接继承 `#{format_value(prd_outputs['target_path'])}` 与 `#{format_value(outputs['target_path'])}`。"
+  ].join("\n")
+
+  project_name_candidates = bootstrap_project_name_candidates(data)
+  slug_candidates = bootstrap_slug_candidates(data)
+  recommended_project_name = project_name_candidates.first || "项目管理系统"
+  recommended_slug = slug_candidates.first || "project-admin"
+  sections << [
+    "### 执行参数确认",
+    "",
+    "- 这一步仍需人工确认项目名称与目录 slug；如无异议，默认按推荐项进入 `init-08`。",
+    "- 项目名称候选：",
+    "  `a.` `#{project_name_candidates[0]}`（推荐）",
+    "  `b.` `#{project_name_candidates[1] || recommended_project_name}`",
+    "  `c.` `#{project_name_candidates[2] || recommended_project_name}`",
+    "- 目录 slug 候选：",
+    "  `a.` `#{slug_candidates[0]}`（推荐）",
+    "  `b.` `#{slug_candidates[1] || recommended_slug}`",
+    "  `c.` `#{slug_candidates[2] || recommended_slug}`",
+    "- 默认初始化位置：当前工作区根目录下创建目录 `#{recommended_slug}`，该目录本身就是项目根目录。",
+    "- 如需调整，可直接回复：`项目名称改为 [b]`、`项目名称改为 [自定义: xxx]`、`目录名称改为 [b]`、`目录名称改为 [自定义: xxx]`。"
   ].join("\n")
 
   sections << [
     "### 人工确认方式",
     "",
-    "- 这一步不是继续答题，而是确认第8步执行范围、项目长期规则和下一轮 PRD 交接是否都足够清楚。",
-    "- 建议 reviewer 重点检查：是否混入业务接口或业务页面设计，长期规则是否真的适合写入项目内长期复用。",
+    "- 这一步不是继续答题，而是确认第8步执行范围、项目长期规则和下一轮 PRD 输入是否都足够清楚。",
+    "- 重点检查：scope 是否越界，长期规则是否适合沉淀到项目固定路径，PRD 输入是否足以支撑下一轮展开。",
     "- 如无修改，回复“bootstrap_plan 确认，继续”即可。",
     "- 如需修改，直接指出要改的执行范围、长期规则或 PRD 交接边界。"
   ].join("\n")

@@ -111,18 +111,26 @@ c. 平台管理后台
 
 要求：
 
-- 明确提示用户先通读 `rendered/init-06.design_seed.md` 与 `rendered/init-07.bootstrap_plan.md`
-- 如当前 `bootstrap_plan` 已包含 3 个子文档，也要一并提示用户通读相应内容
+- 明确提示用户先通读 `rendered/init-06.design_seed.md`
+- 明确提示用户通读 `rendered/init-07.bootstrap_plan.md`
+- 在进入人工确认前，还应先生成并提示用户通读：
+  - `rendered/init-07.project-conventions.md`
+  - `rendered/init-07.prd-bootstrap-context.md`
+  - `rendered/init-07.init-execution-scope.md`
+- `rendered/init-07.bootstrap_plan.md` 应保持为索引页，并直接包含“执行参数确认”段落，写出项目名称候选、目录 slug 候选与默认初始化位置
 - 对话里重点说明：请确认这份 bootstrap plan 是否足够具体、是否能直接指导初始化基座实现
 - 这一步必须额外询问一个固定问题：项目名称是什么
 - 项目名称必须提供 3 个候选，并默认推荐 `a`
 - 若用户未对项目名称提出异议，则默认采用 `a`
+- 这一步还必须额外询问：本地目录名称是什么；目录名称不等于项目名称，默认应给出英文/slug 候选
 - 同时固定告知 `init-08` 默认执行参数：
-  - 初始化目录：当前项目根目录
+  - 初始化位置：当前工作区根目录下创建目录 `<目录名称>`，且该目录本身就是项目根目录
   - git 处理：默认删除现有 `.git`
   - 可选修改：
     - `项目名称改为 [b]`
     - `项目名称改为 [自定义: xxx]`
+    - `目录名称改为 [b]`
+    - `目录名称改为 [自定义: xxx]`
     - `初始化目录改为 /abs/path`
     - `保留 git`
     - `保留 git，remote-url 改为 https://...`
@@ -138,13 +146,16 @@ c. 平台管理后台
 它的职责是：
 
 - 按 `Init Execution Scope` 初始化项目
-- 先生成 run 内专用 `prompts/init-08-execution-prompt.md`
-- 由执行代理完成工程初始化命令和 AI 补强
-- 初始化完成后，自动执行 `post_init_to_prd.rb`
+- 先基于用户在 `init-07` 已确认的项目名称、目录名称和初始化位置，生成 run 内专用 `prompts/init-08-execution-prompt.md`
+- 由新的执行代理或新上下文完成工程初始化命令和 AI 补强，不要继续复用已经堆叠 `init-01` 到 `init-07` 的长上下文
+- 初始化完成后，先交给独立 reviewer 子 agent / 新上下文审查；reviewer 通过后，再执行 `post_init_to_prd.rb`
 - 自动创建新的 `prd` run
-- 自动把干净版 `PRD Bootstrap Context` 注入新的 PRD run
+- 自动把拆分后的干净 PRD 输入注入新的 PRD run，包括：
+  - `raw/attachments/confirmed-foundation.md`
+  - `raw/attachments/base-modules-prd.md`
 - 自动预填新的 `raw/request.md`
 - 自动生成明确引用规则文档的 PRD 启动提示词
+- 这一步只负责拆分并注入已清洗的 `prd-bootstrap-context`，不在 `init-08` 再承担二次去味或兼容旧脏内容
 
 ## Init 停点
 
@@ -155,9 +166,9 @@ c. 平台管理后台
 3. `init-03` reviewer 通过后，等待人工确认 `identity_access`
 4. `init-04` reviewer 通过后，等待人工确认 `experience_platform`
 5. `init-05 baseline` 生成并通过校验后，等待人工确认基线定稿
-6. `init-06 design_seed` 默认自动生成，不单独停给人，但在 `init-07` 前应渲染 Markdown，供用户和 `bootstrap_plan` 一起通读
-7. `init-07 bootstrap_plan` 生成后，等待人工确认初始化底座计划
-8. `init-08 execution` 在用户确认后执行初始化，并自动启动新的 PRD run
+6. `init-06 design_seed` 生成后，先经脚本校验与 reviewer 审查，不单独停给人；通过后在 `init-07` 前渲染 Markdown，供用户和 `bootstrap_plan` 一起通读
+7. `init-07 bootstrap_plan` 生成后，先经脚本校验与 reviewer 审查；通过后连同 `rendered/init-07.project-conventions.md`、`rendered/init-07.prd-bootstrap-context.md`、`rendered/init-07.init-execution-scope.md` 一起等待人工确认初始化底座计划
+8. `init-08 execution` 在用户确认后应先生成新的执行 prompt，再由新的执行代理执行初始化，并自动启动新的 PRD run
 
 也就是说，`init` 是“阶段内自动跑通，阶段末停给人确认”。
 
@@ -179,6 +190,7 @@ reviewer 在 autonomous run 中也必须保留，但它属于 AI 内部流程，
 - reviewer 仍然使用结构化 YAML
 - reviewer 的判断仍然决定是否返工
 - 用户不需要手动触发 reviewer
+- reviewer 必须由独立 reviewer 子 agent 或独立新上下文完成，主 agent 不得自己兼任 reviewer
 
 ## 进度板规则
 

@@ -21,6 +21,8 @@ def parse_args(argv)
     case key
     when "--project-root"
       options[:project_root] = args.shift
+    when "--project-dir-name"
+      options[:project_dir_name] = args.shift
     when "--project-name"
       options[:project_name] = args.shift
     when "--keep-git"
@@ -40,7 +42,7 @@ def parse_args(argv)
 end
 
 def usage
-  warn "Usage: ruby scripts/init/execute_init_scope.rb <bootstrap_plan.yml> [--project-root PATH] [--project-name NAME] [--keep-git] [--remote-url URL] [--owner NAME] [--prd-run-id RUN_ID]"
+  warn "Usage: ruby scripts/init/execute_init_scope.rb <bootstrap_plan.yml> [--project-root PATH] [--project-dir-name NAME] [--project-name NAME] [--keep-git] [--remote-url URL] [--owner NAME] [--prd-run-id RUN_ID]"
   exit 1
 end
 
@@ -83,6 +85,33 @@ def project_title_from_context(data)
   title.empty? ? "project" : title
 end
 
+def slugify(text)
+  ascii = text.to_s.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")
+  ascii.empty? ? nil : ascii
+end
+
+def default_project_dir_name(project_name, data)
+  candidates = [
+    project_name,
+    project_title_from_context(data),
+    data.dig("meta", "title")
+  ]
+
+  candidates.each do |candidate|
+    slug = slugify(candidate)
+    return slug unless slug.nil? || slug == "project"
+  end
+
+  "project-app"
+end
+
+def resolve_project_location(options, data, project_name)
+  base_root = File.expand_path(options[:project_root], Dir.pwd)
+  dir_name = options[:project_dir_name].to_s.strip
+  dir_name = default_project_dir_name(project_name, data) if dir_name.empty?
+  [File.expand_path(dir_name, base_root), dir_name]
+end
+
 def build_post_command(bootstrap_plan_path, project_root:, project_name:, owner:, delete_git:, remote_url:, prd_run_id:)
   command = [
     "ruby", File.join(ROOT, "scripts/init/post_init_to_prd.rb"),
@@ -97,7 +126,7 @@ def build_post_command(bootstrap_plan_path, project_root:, project_name:, owner:
   Shellwords.join(command)
 end
 
-def build_execution_summary(data:, project_root:, delete_git:, conventions_path:, scope_path:, prompt_path:, post_command:)
+def build_execution_summary(data:, project_root:, delete_git:, conventions_render_path:, scope_path:, prompt_path:, reviewer_prompt_path:, post_command:)
   scope = data["init_execution_scope"] || {}
   [
     "# Init Execution Preparation Summary",
@@ -105,10 +134,11 @@ def build_execution_summary(data:, project_root:, delete_git:, conventions_path:
     "## 准备结果",
     "",
     "1. 已按当前 bootstrap_plan 渲染 `Init Execution Scope`：`#{scope_path}`",
-    "2. 已写入项目规则文件：`#{conventions_path}`",
+    "2. 已生成待写入项目目录的规则文件：`#{conventions_render_path}`",
     "3. 初始化目标目录：`#{project_root}`",
     "4. git 处理：#{delete_git ? '已按默认选项删除现有 .git' : '保留现有 .git'}",
     "5. 已生成执行代理专用 prompt：`#{prompt_path}`",
+    "6. 已生成 reviewer 专用 prompt：`#{reviewer_prompt_path}`",
     "",
     "## 本轮已预备内容",
     "",
@@ -116,14 +146,15 @@ def build_execution_summary(data:, project_root:, delete_git:, conventions_path:
     "",
     "## 下一步标准动作",
     "",
-    "1. 把 `#{prompt_path}` 整段交给执行代理，让其按 scope 完成工程初始化命令与 AI 补强。",
-    "2. 执行代理完成初始化后，必须运行下面这条命令自动进入 PRD：",
+    "1. 新开一个干净上下文或新的执行 agent，不要继续复用 `init-01` 到 `init-07` 的长对话。",
+    "2. 把 `#{prompt_path}` 整段交给执行代理，让其按 scope 完成工程初始化命令与 AI 补强。",
+    "3. 执行代理完成初始化后，必须把 `#{reviewer_prompt_path}` 交给独立 reviewer 子 agent 或独立新上下文；只有 reviewer 通过后，才能运行下面这条命令自动进入 PRD：",
     "",
     "```bash",
     post_command,
     "```",
     "",
-    "3. `post_init_to_prd.rb` 完成后，会自动创建新的 PRD run、注入干净版上下文、预填 `raw/request.md`，并增强新的 `prompts/run-agent-prompt.md`。"
+    "4. `post_init_to_prd.rb` 完成后，会自动创建新的 PRD run、注入干净版上下文、预填 `raw/request.md`，并增强新的 `prompts/run-agent-prompt.md`。"
   ].join("\n")
 end
 
@@ -141,23 +172,23 @@ unless errors.empty?
   exit 2
 end
 
-project_root = File.expand_path(options[:project_root], Dir.pwd)
 project_name = options[:project_name].to_s.strip
 project_name = project_title_from_context(data) if project_name.empty?
+project_root, project_dir_name = resolve_project_location(options, data, project_name)
 owner = options[:owner].to_s.strip
 owner = ENV["USER"].to_s.strip if owner.empty?
 owner = "unknown" if owner.empty?
 run_root = infer_run_root(bootstrap_plan_path)
 run_root = File.expand_path("..", run_root) if File.basename(run_root) == "init"
 
-execution_scope_render = File.join(run_root, "rendered/init-08.init-execution-scope.md")
+execution_scope_render = File.join(run_root, "rendered/init-07.init-execution-scope.md")
 run_command("ruby", File.join(ROOT, "scripts/init/render_init_execution_scope.rb"), bootstrap_plan_path, execution_scope_render)
 
 project_conventions_tmp = File.join(Dir.tmpdir, "project-conventions-#{Process.pid}.md")
 run_command("ruby", File.join(ROOT, "scripts/init/render_project_conventions.rb"), bootstrap_plan_path, project_conventions_tmp)
 clean_conventions = clean_project_conventions(File.read(project_conventions_tmp))
-project_conventions_path = File.join(project_root, "docs/project/project-conventions.md")
-write_file(project_conventions_path, clean_conventions)
+project_conventions_render_path = File.join(run_root, "rendered/init-08.project-conventions.md")
+write_file(project_conventions_render_path, clean_conventions)
 FileUtils.rm_f(project_conventions_tmp)
 
 if options[:delete_git]
@@ -183,6 +214,7 @@ run_command(
   *(options[:remote_url].to_s.strip == "" ? [] : ["--remote-url", options[:remote_url]]),
   *(options[:prd_run_id].to_s.strip == "" ? [] : ["--prd-run-id", options[:prd_run_id]])
 )
+reviewer_prompt_path = File.join(run_root, "prompts/init-08-reviewer-prompt.md")
 
 post_command = build_post_command(
   bootstrap_plan_path,
@@ -199,14 +231,17 @@ summary = build_execution_summary(
   data: data,
   project_root: project_root,
   delete_git: options[:delete_git],
-  conventions_path: relative_to(project_conventions_path, project_root),
+  conventions_render_path: relative_to(project_conventions_render_path, ROOT),
   scope_path: relative_to(execution_scope_render, ROOT),
   prompt_path: relative_to(execution_prompt_path, ROOT),
+  reviewer_prompt_path: relative_to(reviewer_prompt_path, ROOT),
   post_command: post_command
 )
 write_file(summary_path, summary)
 
 puts "Rendered init execution scope to #{execution_scope_render}"
-puts "Wrote clean project conventions to #{project_conventions_path}"
+puts "Rendered clean project conventions to #{project_conventions_render_path}"
+puts "Resolved project directory name to #{project_dir_name}"
 puts "Rendered init execution prompt to #{execution_prompt_path}"
+puts "Rendered init reviewer prompt to #{reviewer_prompt_path}"
 puts "Execution summary written to #{summary_path}"

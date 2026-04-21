@@ -72,7 +72,7 @@ meta:
 ## 初始化命令示例
 
 ```bash
-ruby scripts/init/init_artifact.rb --step-id init-01 project_profile runs/demo/init-01.project_profile.yaml
-ruby scripts/init/init_artifact.rb --step project_initialization --step-id init-01 review runs/demo/init-01.review.yaml
-ruby scripts/init/init_artifact.rb --step-id init-05 baseline runs/demo/init-05.baseline.yaml
+ruby scripts/init/profile/init_project_profile_step.rb runs/demo init-01
+ruby scripts/init/profile/init_project_profile_review.rb runs/demo init-01
+ruby scripts/init/foundation/prepare_baseline.rb runs/demo
 ```

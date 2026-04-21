@@ -28,14 +28,17 @@
 6. 你的工作重点是在预填初稿基础上收敛，但脚本预填只是骨架；你必须把 baseline / design_seed 已确认的项目特征补进来，不要停留在通用后台空话。
 7. 这一步是给人工确认初始化范围和长期规则的，不要写成纯技术实现细节清单。
 8. `bootstrap_plan` 必须体现 design_seed 的结果，例如主题/密度/导航原则、页面模式、基础组件约束，而不是只写“design-system seed”几个字。
-9. `project_conventions` 应清楚表达：规则文件固定落在项目相对路径 `docs/project/project-conventions.md`，后续所有 PRD 都直接读取这个文件。
-10. `project_conventions.generation_workflow` 应明确：脚本只生成骨架，AI 必须基于当前项目的 `design_seed` 补强细节并自查。
-11. `prd_bootstrap_context` 不是项目内长期规则文件，而是本次 `init -> prd` 的基础 PRD 输入文档。
-12. `prd_bootstrap_context` 不要写成“交接清单”或“流程说明”，而要写成一份基础 PRD 初稿。
-13. `prd_bootstrap_context` 只允许承接项目概况和基础模块方向，例如登录、账号、租户、权限，不要提前带入任何具体业务功能。
-14. `prd_bootstrap_context.notes` 应写清它是流程执行依据，不是项目内长期规则文件；项目长期规则仍由 `docs/project/project-conventions.md` 承担。
-15. 输出必须严格遵循 `bootstrap_plan.template.yaml` 字段名。
-16. 只输出最终 YAML，不要输出 Markdown 解释。
+9. `bootstrap_plan.md` 应偏向“索引 + 简介 + 后续使用方式”，不要大段复述 `init_execution_scope`、`project_conventions`、`prd_bootstrap_context` 三份子文档的正文。
+10. `bootstrap_plan.md` 里应明确区分“当前给人确认的 rendered 预览文件”和“后续真正写入项目内的固定路径”，不要把两者混写成同一种目标路径。
+11. `bootstrap_plan.md` 还应补一小段“执行参数确认”，先给出项目名称候选、目录 slug 候选和默认初始化位置，并明确这些参数仍需 human gate 最终确认。
+12. `project_conventions` 应清楚表达：规则文件固定落在项目相对路径 `docs/project/project-conventions.md`，后续所有 PRD 都直接读取这个文件。
+13. `project_conventions.generation_workflow` 应明确：脚本只生成骨架，AI 必须基于当前项目的 `design_seed` 补强细节并自查。
+14. `prd_bootstrap_context` 不是项目内长期规则文件，而是本次 `init -> prd` 的基础 PRD 输入文档。
+15. `prd_bootstrap_context` 不要写成“交接清单”或“流程说明”，而要写成一份基础 PRD 初稿。
+16. `prd_bootstrap_context` 只允许承接项目概况和基础模块方向，例如登录、账号、租户、权限，不要提前带入任何具体业务功能。
+17. `prd_bootstrap_context.notes` 应写清它是流程执行依据，不是项目内长期规则文件；项目长期规则仍由 `docs/project/project-conventions.md` 承担。
+18. 输出必须严格遵循 `bootstrap_plan.template.yaml` 字段名。
+19. 只输出最终 YAML，不要输出 Markdown 解释。
 
 输出要求：
 

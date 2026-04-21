@@ -1,0 +1,41 @@
+artifact_type: review
+version: "1.0.2"
+status:
+  step: initialization_design_seed
+  attempt: 1
+  max_retry: 2
+meta:
+  subject_type: design_seed
+  flow_id: init
+  step_id: init-06
+  artifact_id: init-06.review
+  subject_path: runs/demo/init/init-06.design_seed.yaml
+  reviewer: reviewer
+  updated_at: "2026-04-20T12:00:00+08:00"
+current_stage_review:
+  stage_id: init-06
+  checklist:
+    - item_id: style_recipe_grounded
+      passed: true
+      note: 风格 recipe 已绑定到 admin SaaS 场景，没有漂成泛化 landing page 视觉词。
+    - item_id: token_baseline_complete
+      passed: true
+      note: semantic color、radius、spacing、shadow、typography 均给出可继承默认值。
+    - item_id: layout_principles_complete
+      passed: true
+      note: app shell、导航层级、列表页与表单页的布局原则已写清。
+    - item_id: no_business_page_leakage
+      passed: true
+      note: 当前内容仍停留在系统级设计约束，没有下沉到业务页面字段或接口。
+findings:
+  issues: []
+  missing_info: []
+  p0: []
+decision:
+  has_blocking_issue: false
+  allow_next_step: true
+  need_human_escalation: false
+  reason: design_seed 已形成可复用的视觉与布局基线，可以进入 bootstrap_plan。
+required_revisions: []
+notes:
+  - 建议在 init-07 人工确认时，连同 rendered/init-06.design_seed.md 一起给用户通读。

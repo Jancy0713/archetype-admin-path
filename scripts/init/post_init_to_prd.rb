@@ -8,6 +8,37 @@ ROOT = File.expand_path("../..", __dir__)
 
 require_relative "artifact_utils"
 
+def normalize_progress_template(progress_path, flow)
+  lines = File.readlines(progress_path, chomp: true)
+  section_headers = [
+    "## Meta",
+    "## Current Focus",
+    "## Inputs",
+    "## Init Progress",
+    "## PRD Progress",
+    "## Decisions",
+    "## Handoff Notes",
+    "## Status Legend",
+    "## Update Rules"
+  ]
+
+  current_section = nil
+  filtered = lines.select do |line|
+    current_section = line if section_headers.include?(line)
+
+    case current_section
+    when "## Init Progress"
+      flow == "init"
+    when "## PRD Progress"
+      flow == "prd"
+    else
+      true
+    end
+  end
+
+  File.write(progress_path, filtered.join("\n") + "\n")
+end
+
 def parse_args(argv)
   options = {
     delete_git: true,
@@ -61,6 +92,13 @@ def project_title_from_context(context)
   positioning.empty? ? "project" : positioning
 end
 
+def project_label(project_name)
+  name = project_name.to_s.strip
+  return name if name.end_with?("项目")
+
+  "#{name}项目"
+end
+
 def clean_project_conventions(markdown)
   lines = markdown.lines
   kept = []
@@ -77,16 +115,20 @@ def clean_project_conventions(markdown)
   kept.join.lstrip
 end
 
-def build_clean_prd_context(context)
+def build_confirmed_foundation_markdown(context)
   sections = []
-  sections << "# Init Bootstrap Context\n"
-
-  sections << "## 项目概况\n\n"
+  sections << "# 已确认项目级前提\n"
+  sections << "\n## 项目概况\n\n"
   sections << Array(context["project_overview"]).each_with_index.map { |item, index| "#{index + 1}. #{item}" }.join("\n")
   sections << "\n\n## 已确认基础前提\n\n"
   sections << Array(context["confirmed_foundation"]).each_with_index.map { |item, index| "#{index + 1}. #{item}" }.join("\n")
+  sections.join
+end
 
-  sections << "\n\n## 基础模块需求\n\n"
+def build_base_modules_prd_markdown(context)
+  sections = []
+  sections << "# 基础模块 PRD\n"
+  sections << "\n## 基础模块需求\n\n"
   Array(context["priority_modules"]).each do |item|
     sections << "### #{item['name']}\n\n"
     sections << "- 模块目标：#{item['objective']}\n"
@@ -96,11 +138,14 @@ def build_clean_prd_context(context)
   end
 
   sections << "\n## 本轮 PRD 关注点\n\n"
-  sections << Array(context["prd_focus"]).each_with_index.map { |item, index| "#{index + 1}. #{item}" }.join("\n")
+  sections << [
+    "1. 重点应放在基础模块的页面范围、状态流转、数据对象和接口边界。",
+    "2. 不应自行补入任何具体业务功能前提。"
+  ].join("\n")
   sections.join
 end
 
-def build_request_markdown(project_name, clean_context_path, clean_context_body)
+def build_request_markdown(project_name, project_root:, foundation_path:, base_modules_path:)
   <<~MD
     # Request
 
@@ -110,38 +155,29 @@ def build_request_markdown(project_name, clean_context_path, clean_context_body)
 
     ## Title
 
-    - #{project_name} 基础模块 PRD
+    - 完成 #{project_name}项目的初始化流程完整基座搭建 PRD
 
     ## One-line Requirement
 
-    - 基于已完成的 init 结果，继续完成当前项目的基础模块 PRD，先覆盖登录、账号、租户、权限、框架型组件和平台通用能力组件。
+    - 为项目 `#{project_root}` 实现登录、账号、租户、权限、框架型组件和平台通用能力组件。
 
     ## Details
 
-    - 本轮 PRD 直接继承 init 已确认的项目级前提。
-    - 项目规则文档：`docs/project/project-conventions.md`
-    - init 生成的基础 PRD 上下文：`#{clean_context_path}`
-
-    #{clean_context_body}
+    - 已确认项目级前提：`#{foundation_path}`
+    - 项目目录：`#{project_root}`
+    - 项目规则文档：`#{File.join(project_root, "docs/project/project-conventions.md")}`
+    - 基础 PRD：`#{base_modules_path}`
 
     ## Notes
 
-    - 这轮 PRD 不要自行补入任何具体业务功能前提。
-    - 优先把基础模块的页面范围、状态流转、数据对象和接口边界拆清楚。
+    - 不应自行补入任何具体业务功能前提。
+    - 不应重复确认 `#{foundation_path}` 中已经稳定的项目级前提。
+    - 重点只放在基础模块的页面范围、状态流转、数据对象和接口边界。
   MD
 end
 
 def augment_prd_prompt(prompt_path, project_conventions_path, clean_context_path)
   content = File.read(prompt_path)
-  injected_reads = <<~MD
-    - #{project_conventions_path}
-    - #{clean_context_path}
-  MD
-
-  content = content.sub(
-    "- `{{RUN_ROOT}}/raw/attachments/`\n",
-    "- `{{RUN_ROOT}}/raw/attachments/`\n#{injected_reads}"
-  )
 
   extra_note = <<~MD
 
@@ -150,6 +186,7 @@ def augment_prd_prompt(prompt_path, project_conventions_path, clean_context_path
     - 你必须始终把 `#{project_conventions_path}` 作为当前项目的长期规则来源。
     - 你必须把 `#{clean_context_path}` 作为本轮 PRD 的 init 继承上下文输入。
     - 如果两者存在冲突，优先保持 `project-conventions` 为项目级长期规则，`init bootstrap context` 只承担本轮 PRD 启动输入。
+    - 新创建的 PRD run 进度板只应保留 `PRD Progress`；不要手动回填任何上一轮 `init` 的步骤状态。
   MD
 
   File.write(prompt_path, content + extra_note)
@@ -198,10 +235,18 @@ Tempfile.create(["project-conventions", ".md"]) do |tmp|
 end
 
 context = data["prd_bootstrap_context"] || {}
-clean_context_body = build_clean_prd_context(context)
+foundation_body = build_confirmed_foundation_markdown(context)
+base_modules_body = build_base_modules_prd_markdown(context)
+foundation_relative_path = "raw/attachments/confirmed-foundation.md"
+base_modules_relative_path = "raw/attachments/base-modules-prd.md"
 
 Tempfile.create(["prd-request", ".md"]) do |tmp|
-  tmp.write(build_request_markdown(project_name, "raw/attachments/init-prd-context.md", clean_context_body))
+  tmp.write(build_request_markdown(
+    project_name,
+    project_root: project_root,
+    foundation_path: foundation_relative_path,
+    base_modules_path: base_modules_relative_path
+  ))
   tmp.close
 
   prd_run_id = options[:prd_run_id].to_s.strip
@@ -227,12 +272,26 @@ unless created_run
   exit 3
 end
 
-clean_context_target = File.join(created_run, "raw/attachments/init-prd-context.md")
-write_file(clean_context_target, clean_context_body)
-write_file(File.join(created_run, "raw/request.md"), build_request_markdown(project_name, "raw/attachments/init-prd-context.md", clean_context_body))
-augment_prd_prompt(File.join(created_run, "prompts/run-agent-prompt.md"), "docs/project/project-conventions.md", "raw/attachments/init-prd-context.md")
+progress_path = File.join(created_run, "progress/workflow-progress.md")
+normalize_progress_template(progress_path, "prd") if File.exist?(progress_path)
+
+foundation_target = File.join(created_run, foundation_relative_path)
+base_modules_target = File.join(created_run, base_modules_relative_path)
+write_file(foundation_target, foundation_body)
+write_file(base_modules_target, base_modules_body)
+write_file(
+  File.join(created_run, "raw/request.md"),
+  build_request_markdown(
+    project_name,
+    project_root: project_root,
+    foundation_path: foundation_relative_path,
+    base_modules_path: base_modules_relative_path
+  )
+)
+augment_prd_prompt(File.join(created_run, "prompts/run-agent-prompt.md"), "docs/project/project-conventions.md", "#{foundation_relative_path}` 与 `#{base_modules_relative_path}")
 
 puts "Project conventions written to #{File.join(project_root, 'docs/project/project-conventions.md')}"
 puts "Created prd run at #{created_run}"
-puts "Injected clean init bootstrap context into #{File.join(created_run, 'raw/attachments/init-prd-context.md')}"
+puts "Injected confirmed foundation into #{foundation_target}"
+puts "Injected base modules prd into #{base_modules_target}"
 puts "Updated raw/request.md and prompts/run-agent-prompt.md for the new PRD run"

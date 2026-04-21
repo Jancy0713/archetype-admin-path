@@ -23,21 +23,24 @@
 ## 最小执行顺序
 
 1. 用 `scripts/init/init_artifact.rb` 初始化当前步骤的 YAML 骨架
+   `profile / foundation / bootstrap / execution` 已逐步增加 wrapper，优先使用分组 wrapper
 2. 把项目描述或 PRD 提供给主模型
 3. 使用 `主模型 Prompt` 直接填写 YAML
 4. 运行 `validate_artifact.rb` 做结构和引用校验
 5. 如果脚本校验失败，直接返给主模型修正，不进入 reviewer
 6. 只有脚本通过后，才把结果交给 reviewer
 7. 先用 `init_artifact.rb --step ... review ...` 初始化 reviewer 骨架
-8. 使用 `Reviewer Prompt` 直接填写 review YAML
+8. 使用 `Reviewer Prompt` 交给独立 reviewer 子 agent 填写 review YAML，主 agent 不得自己兼任 reviewer
 9. 如需返工，最多返工 2 轮；每次返工后都要先重新过脚本校验
 10. 通过后生成 `baseline`
 11. `baseline` 确认后生成 `design_seed`
-12. `design_seed` 通过后生成 `bootstrap_plan`
-13. `bootstrap_plan` 确认后进入 `init-08`，按 `Init Execution Scope` 初始化项目
-14. `init-08` 先生成 run 内专用执行 prompt，由执行代理完成工程初始化与 AI 补强
-15. 工程初始化完成后，执行代理必须自动运行 `post_init_to_prd.rb` 生成新的 `prd` run
-16. 如需调整系统基线，再走 `change_request`
+12. `design_seed` 通过脚本校验与 reviewer 后，再生成 `bootstrap_plan`
+13. `bootstrap_plan` 通过脚本校验与 reviewer，并经人工确认后，进入 `init-08`
+14. `init-08` 先生成 run 内专用执行 prompt、reviewer prompt 和待落位的项目规则文档，并明确要求用户新开干净上下文
+15. 由新的执行代理完成工程初始化、规则文档落位与 AI 补强
+16. 工程初始化完成后，必须交给独立 reviewer 子 agent / 新上下文审查；reviewer 通过后，执行代理再运行 `post_init_to_prd.rb` 生成新的 `prd` run
+17. 新的 `prd` run 默认注入 `raw/attachments/confirmed-foundation.md`、`raw/attachments/base-modules-prd.md`，并补强 `prompts/run-agent-prompt.md`
+18. 如需调整系统基线，再走 `change_request`
 
 ## 注意事项
 
@@ -55,8 +58,19 @@
 12. 待确认项应带稳定编号，便于用户用固定格式回复修改意见。
 13. `level: required` 的项必须持续追问，直到用户给出明确答复。
 14. `init-05` 到 `init-07` 不能只依赖脚本预填；脚本负责骨架，主模型必须主动补强项目特征、默认边界和后续可继承细节。
+15. `init-05 baseline` 当前默认不单独加 reviewer，先通过脚本校验并进入 human gate。
+16. `init-06 design_seed` 与 `init-07 bootstrap_plan` 当前应保留 reviewer，但只在 `init-07` 统一停给用户确认。
+17. `init-08 execution` 也必须补一轮独立 reviewer，但 reviewer 放在工程初始化完成之后执行，避免把主执行和审查职责混在同一个上下文中。
 
 ## Prompt 列表
+
+分组入口：
+
+- [prompts/README.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md)
+- [profile](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/profile/README.md)
+- [foundation](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/foundation/README.md)
+- [bootstrap](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/bootstrap/README.md)
+- [execution](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/execution/README.md)
 
 - [MASTER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/MASTER_PROMPT.md)
 - [BASELINE_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/BASELINE_PROMPT.md)
@@ -66,9 +80,13 @@
 - [INIT_EXECUTION_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/INIT_EXECUTION_PROMPT.md)
 - [REVIEWER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/REVIEWER_PROMPT.md)
 - [EXECUTION_CHECKLIST.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/EXECUTION_CHECKLIST.md)
+- reviewer 示例：
+  [init-06.review.sample.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/init/archive/samples/init-06.review.sample.yaml) /
+  [init-07.review.sample.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/init/archive/samples/init-07.review.sample.yaml)
 
 ## 结构化配套
 
 - [STRUCTURED_OUTPUT_GUIDE.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/STRUCTURED_OUTPUT_GUIDE.md)
 - [templates/structured](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured)
 - [scripts/init](/Users/wangwenjie/project/archetype-admin-path/scripts/init)
+- [scripts/init/README.md](/Users/wangwenjie/project/archetype-admin-path/scripts/init/README.md)

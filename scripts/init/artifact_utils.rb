@@ -7,9 +7,15 @@ module InitFlow
     ROOT = File.expand_path("../..", __dir__)
 
     ARTIFACT_TYPES = %w[project_profile review baseline design_seed bootstrap_plan change_request].freeze
-    REVIEWABLE_STEPS = %w[project_initialization].freeze
+    REVIEWABLE_STEPS = %w[
+      project_initialization
+      initialization_design_seed
+      initialization_bootstrap_plan
+    ].freeze
     REVIEWABLE_SUBJECTS = {
       "project_initialization" => "project_profile",
+      "initialization_design_seed" => "design_seed",
+      "initialization_bootstrap_plan" => "bootstrap_plan",
     }.freeze
     PROJECT_PROFILE_STAGE_IDS = %w[
       foundation_context
@@ -102,6 +108,18 @@ module InitFlow
         no_next_stage_prefill
       ],
     }.freeze
+    DESIGN_SEED_REVIEW_CHECKLIST_IDS = %w[
+      style_recipe_grounded
+      token_baseline_complete
+      layout_principles_complete
+      no_business_page_leakage
+    ].freeze
+    BOOTSTRAP_PLAN_REVIEW_CHECKLIST_IDS = %w[
+      execution_scope_bounded
+      project_conventions_grounded
+      prd_bootstrap_context_bounded
+      no_business_implementation_leakage
+    ].freeze
 
     OPTION_SCHEMA = {
       type: :hash,
@@ -1008,6 +1026,9 @@ module InitFlow
     end
 
     def validate_design_seed_content(data, errors)
+      page_patterns = Array(dig(data, %w[layout_principles page_patterns]))
+      component_principles = Array(dig(data, %w[layout_principles component_principles]))
+      prohibited_patterns = Array(dig(data, %w[layout_principles prohibited_patterns]))
       color_roles = Array(dig(data, %w[token_baseline color_roles]))
       errors << "token_baseline.color_roles should contain at least 3 items" if color_roles.length < 3
       required_sections = %w[spacing_scale radius_scale shadow_scale typography_scale]
@@ -1015,6 +1036,9 @@ module InitFlow
         items = Array(dig(data, ["token_baseline", section]))
         errors << "token_baseline.#{section} should contain at least 1 item" if items.empty?
       end
+      errors << "layout_principles.page_patterns should contain at least 1 item" if page_patterns.empty?
+      errors << "layout_principles.component_principles should contain at least 1 item" if component_principles.empty?
+      errors << "layout_principles.prohibited_patterns should contain at least 1 item" if prohibited_patterns.empty?
     end
 
     def validate_bootstrap_plan_content(data, errors)
@@ -1044,6 +1068,7 @@ module InitFlow
       priority_modules = Array(dig(data, %w[prd_bootstrap_context priority_modules]))
       prd_focus = Array(dig(data, %w[prd_bootstrap_context prd_focus]))
       prd_reviewer_focus = Array(dig(data, %w[prd_bootstrap_context reviewer_focus]))
+      module_requirements = priority_modules.flat_map { |item| Array(item["requirements"]) }
 
       errors << "init_execution_scope.output_artifacts.template_path must not be empty" if init_template.empty?
       errors << "init_execution_scope.output_artifacts.target_path must not be empty" if init_target.empty?
@@ -1071,6 +1096,10 @@ module InitFlow
       errors << "prd_bootstrap_context.priority_modules should contain at least 1 item" if priority_modules.empty?
       errors << "prd_bootstrap_context.prd_focus should contain at least 1 item" if prd_focus.empty?
       errors << "prd_bootstrap_context.reviewer_focus should contain at least 1 item" if prd_reviewer_focus.empty?
+      errors << "init_execution_scope.output_artifacts.target_path must equal rendered/init-07.init-execution-scope.md" unless init_target == "rendered/init-07.init-execution-scope.md"
+      errors << "project_conventions.output_artifacts.target_path must equal docs/project/project-conventions.md" unless output_target == "docs/project/project-conventions.md"
+      errors << "prd_bootstrap_context.output_artifacts.target_path must equal rendered/init-07.prd-bootstrap-context.md" unless prd_target == "rendered/init-07.prd-bootstrap-context.md"
+      errors << "prd_bootstrap_context.priority_modules[*].requirements should contain at least 1 item" if priority_modules.any? && module_requirements.empty?
     end
 
     def validate_cross_file_rules(artifact, data, artifact_path, errors)
@@ -1225,19 +1254,34 @@ module InitFlow
       expected_subject = REVIEWABLE_SUBJECTS[review_step]
       errors << "meta.subject_path must point to a #{expected_subject.inspect} artifact when status.step is #{review_step.inspect}" if expected_subject && subject["artifact_type"] != expected_subject
       errors << "subject status.step=#{dig(subject, %w[status step]).inspect} does not match review status.step=#{review_step.inspect}" if dig(subject, %w[status step]) != review_step
-      validate_review_stage_checklist(data, subject, errors) if subject["artifact_type"] == "project_profile"
+      validate_review_stage_checklist(data, subject, errors)
     end
 
     def validate_review_stage_checklist(review, subject, errors)
-      current_stage = dig(subject, %w[stage_progress current_stage]).to_s
       stage_id = dig(review, %w[current_stage_review stage_id]).to_s
       checklist = Array(dig(review, %w[current_stage_review checklist]))
-      expected_ids = REVIEW_STAGE_CHECKLIST_IDS[current_stage] || []
       actual_ids = checklist.map { |item| item["item_id"] }
 
-      errors << "current_stage_review.stage_id must match subject current stage #{current_stage.inspect}" unless stage_id == current_stage
-      unless actual_ids == expected_ids
-        errors << "current_stage_review.checklist must match the required review checklist for stage #{current_stage.inspect}"
+      case subject["artifact_type"]
+      when "project_profile"
+        current_stage = dig(subject, %w[stage_progress current_stage]).to_s
+        expected_ids = REVIEW_STAGE_CHECKLIST_IDS[current_stage] || []
+        errors << "current_stage_review.stage_id must match subject current stage #{current_stage.inspect}" unless stage_id == current_stage
+        unless actual_ids == expected_ids
+          errors << "current_stage_review.checklist must match the required review checklist for stage #{current_stage.inspect}"
+        end
+      when "design_seed"
+        expected_stage_id = dig(subject, %w[meta step_id]).to_s
+        errors << "current_stage_review.stage_id must match subject step_id #{expected_stage_id.inspect}" unless stage_id == expected_stage_id
+        unless actual_ids == DESIGN_SEED_REVIEW_CHECKLIST_IDS
+          errors << "current_stage_review.checklist must match the required review checklist for design_seed"
+        end
+      when "bootstrap_plan"
+        expected_stage_id = dig(subject, %w[meta step_id]).to_s
+        errors << "current_stage_review.stage_id must match subject step_id #{expected_stage_id.inspect}" unless stage_id == expected_stage_id
+        unless actual_ids == BOOTSTRAP_PLAN_REVIEW_CHECKLIST_IDS
+          errors << "current_stage_review.checklist must match the required review checklist for bootstrap_plan"
+        end
       end
     end
 

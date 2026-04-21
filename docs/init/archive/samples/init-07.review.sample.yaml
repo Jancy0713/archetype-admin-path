@@ -1,0 +1,42 @@
+artifact_type: review
+version: "1.0.2"
+status:
+  step: initialization_bootstrap_plan
+  attempt: 1
+  max_retry: 2
+meta:
+  subject_type: bootstrap_plan
+  flow_id: init
+  step_id: init-07
+  artifact_id: init-07.review
+  subject_path: runs/demo/init/init-07.bootstrap_plan.yaml
+  reviewer: reviewer
+  updated_at: "2026-04-20T12:00:00+08:00"
+current_stage_review:
+  stage_id: init-07
+  checklist:
+    - item_id: execution_scope_bounded
+      passed: true
+      note: execution scope 只覆盖工程底座、目录初始化与基础能力接线，没有提前实现业务模块。
+    - item_id: project_conventions_grounded
+      passed: true
+      note: project_conventions 已明确组件边界、文件组织、设计 token 与协作约束，bootstrap_plan 渲染时也已把 rendered 预览路径与后续项目固定路径区分开。
+    - item_id: prd_bootstrap_context_bounded
+      passed: true
+      note: prd bootstrap context 保持在基础 PRD 输入层，没有夹带具体业务流程或接口方案；bootstrap_plan 本身保持索引页定位，没有再大段复述子文档正文。
+    - item_id: no_business_implementation_leakage
+      passed: true
+      note: 未出现页面清单、业务规则实现或后端接口编排等越界内容。
+findings:
+  issues: []
+  missing_info: []
+  p0: []
+decision:
+  has_blocking_issue: false
+  allow_next_step: true
+  need_human_escalation: false
+  reason: bootstrap_plan 的范围和交接材料已经足够稳定，可以进入 init-07 人工确认与后续 init-08 准备。
+required_revisions: []
+notes:
+  - 人工确认时应同时查看 bootstrap_plan、project_conventions、prd_bootstrap_context 与 init_execution_scope。
+  - bootstrap_plan 中应直接包含“执行参数确认”段落，给出项目名称候选、目录 slug 候选和默认初始化位置，供 human gate 最终确认。

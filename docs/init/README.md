@@ -64,10 +64,10 @@
 说明：
 
 - `init-01` 到 `init-04` 是问卷式确认阶段，均需要人工确认
-- `init-05` 是对问卷结果的整体收口，仍需要人工确认
-- `init-06` 不单独要求人工确认，由 AI 基于已确认 baseline 继续补强并收敛；脚本只负责骨架初始化与格式校验
-- `init-07` 用于确认“哪些初始化底座工作应该先做”，结尾需要再次人工确认
-- `init-08` 在 `bootstrap_plan` 确认后执行初始化，并自动创建新的 PRD run
+- `init-05` 是对问卷结果的整体收口，仍需要人工确认；当前默认不单独加 reviewer
+- `init-06` 不单独要求人工确认，但会先经过脚本校验与 reviewer，再在 `init-07` 一并给用户通读确认
+- `init-07` 用于确认“哪些初始化底座工作应该先做”；会先经过脚本校验与 reviewer，结尾需要再次人工确认
+- `init-08` 在 `bootstrap_plan` 确认后执行初始化，并在进入新的 PRD run 之前补一轮独立 reviewer 审查
 
 `init-08` 完成后，再进入自动创建的 `prd-01`
 
@@ -99,27 +99,42 @@
 15. [自动运行指南](/Users/wangwenjie/project/archetype-admin-path/docs/AUTONOMOUS_RUN_GUIDE.md)
 16. [版本规则](/Users/wangwenjie/project/archetype-admin-path/docs/VERSIONING.md)
 
+如果你要按当前重构后的入口继续维护这条流程，建议先看：
+
+17. [重构结构说明](/Users/wangwenjie/project/archetype-admin-path/docs/init/WORKFLOW_REFACTOR_GUIDE.md)
+18. [提示词分组索引](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md)
+19. [脚本分组索引](/Users/wangwenjie/project/archetype-admin-path/scripts/init/README.md)
+
 如果要继续看底层规则和模板，再看：
 
-14. [项目画像规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/PROJECT_PROFILE_RULE.md)
-15. [基线汇总规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/BASELINE_RULE.md)
-16. [初始化 Reviewer 规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/REVIEWER_RULE.md)
-17. [初始化变更规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/CHANGE_REQUEST_RULE.md)
-18. [项目画像 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/project_profile.template.yaml)
-19. [Reviewer YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/review.template.yaml)
-20. [初始化基线 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/baseline.template.yaml)
-21. [设计约束基线 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/design_seed.template.yaml)
-22. [初始化底座计划 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/bootstrap_plan.template.yaml)
-23. [初始化变更 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/change_request.template.yaml)
-24. [归档目录](/Users/wangwenjie/project/archetype-admin-path/docs/init/archive/README.md)
+20. [项目画像规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/PROJECT_PROFILE_RULE.md)
+21. [基线汇总规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/BASELINE_RULE.md)
+22. [初始化 Reviewer 规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/REVIEWER_RULE.md)
+23. [初始化变更规则](/Users/wangwenjie/project/archetype-admin-path/docs/init/rules/CHANGE_REQUEST_RULE.md)
+24. [项目画像 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/project_profile.template.yaml)
+25. [Reviewer YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/review.template.yaml)
+26. [初始化基线 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/baseline.template.yaml)
+27. [设计约束基线 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/design_seed.template.yaml)
+28. [初始化底座计划 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/bootstrap_plan.template.yaml)
+29. [初始化变更 YAML 模板](/Users/wangwenjie/project/archetype-admin-path/docs/init/templates/structured/change_request.template.yaml)
+30. [归档目录](/Users/wangwenjie/project/archetype-admin-path/docs/init/archive/README.md)
 
 当前默认执行约束：
 
 - AI 主产物直接写 YAML
 - 主模型产出后先过脚本校验，再进入 reviewer
+- `init-05 baseline` 当前默认走 `主 YAML -> validate -> human gate`
+- `init-06 design_seed` 与 `init-07 bootstrap_plan` 当前按 `主 YAML -> validate -> reviewer -> human gate/下一步` 理解
+- `init-08 execution` 当前先不单独加 reviewer
 - reviewer 默认只审内容质量和基线推进决策
 - 初始化变更和普通功能需求分开处理
 - 推荐在文件名和 YAML 内同时使用 `init-01` 这种步骤编号
+
+当前重构结构见：
+
+- [WORKFLOW_REFACTOR_GUIDE.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/WORKFLOW_REFACTOR_GUIDE.md)
+- [scripts/init/README.md](/Users/wangwenjie/project/archetype-admin-path/scripts/init/README.md)
+- [docs/init/prompts/README.md](/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md)
 
 TODO：
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.3
+
+- 修正 `scripts/create_run.rb` 的模板选择逻辑，`prd` run 改为固定使用 `docs/templates/autonomous-run-prompt.prd.template.md`，避免把 `init` 的 Human Gate 规则混入新的 PRD 启动 prompt
+- 调整 `scripts/init/post_init_to_prd.rb` 生成的新 PRD run 输入格式：`raw/request.md` 不再暴露“基于 init 结果继续”这类上游流程来源，而是直接面向下游 PRD 描述目标项目、基础模块范围和规则文件路径
+- 重写 PRD 启动输入引用方式：从单一 `init-prd-context.md` 拆为 `raw/attachments/confirmed-foundation.md` 与 `raw/attachments/base-modules-prd.md`，分别承载已确认项目级前提与基础模块需求，减少语义混杂
+- 收紧 `base-modules-prd.md` 的关注点，只保留“聚焦基础模块页面范围 / 状态流转 / 数据对象 / 接口边界”与“不要补入具体业务前提”两条执行约束
+- 明确 `init-07` 默认推荐的初始化目录语义：AI 需要推荐目录名 slug，默认初始化位置是“当前项目根目录下的该子目录”，而不是直接把工程铺到当前仓库根目录
+- 统一 `init-07 / init-08` 边界：`init-07` 必须提前生成 `rendered/init-07.init-execution-scope.md` 供 Human Gate 确认；`init-08` 才基于已确认的项目名称、目录名称和初始化位置生成 `prompts/init-08-execution-prompt.md` 并执行初始化
+- 补齐 `init-07` 的正式渲染链路：除 `bootstrap_plan.md` 外，还会实际生成 `rendered/init-07.project-conventions.md`、`rendered/init-07.prd-bootstrap-context.md`、`rendered/init-07.init-execution-scope.md`，让用户在 Human Gate 一次确认完整 5 份材料（含 `init-06.design_seed.md`）
+- 为 `scripts/init/continue_run.rb`、`scripts/init/execute_init_scope.rb`、`scripts/init/render_init_execution_prompt.rb` 增加一致的目录解析规则；未显式传入 `--project-dir-name` 时，也不再默认把仓库根目录直接当成初始化落点
+- 清理并回退测试产物：删除临时验证 run 与生成项目目录，将 `runs/2026-04-18-init-1.0.3` 回退到 `init-06` 已完成、等待从 `init-07 bootstrap_plan` 重新开始的状态
+- 本次变更重点是修正 `init -> prd` 交接协议和 `init-07/08` 默认行为，不改动 `1.0.1`、`1.0.2` 的既有产物
 ## 1.0.2
 
 - 将 `init` 的阶段确认数据从多桶结构收敛为单一 `confirmation_items`，统一承载所有需要人工确认的内容
