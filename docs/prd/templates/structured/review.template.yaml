@@ -1,11 +1,11 @@
 artifact_type: review
-version: "1.0"
+version: "2.0.0"
 status:
-  step: requirement_clarification
+  step: prd_analysis
   attempt: 1
   max_retry: 2
 meta:
-  subject_type: clarification
+  subject_type: analysis
   flow_id: ""
   step_id: ""
   artifact_id: ""

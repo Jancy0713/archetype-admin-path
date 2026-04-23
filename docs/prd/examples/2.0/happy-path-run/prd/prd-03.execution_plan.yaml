@@ -1,0 +1,180 @@
+artifact_type: execution_plan
+version: "2.1.0"
+status:
+  step: prd_execution_plan
+  attempt: 1
+  max_retry: 2
+  ready_for_next: true
+meta:
+  title: "素材库管理后台 execution_plan"
+  flow_id: prd
+  step_id: prd-03
+  artifact_id: prd-03.execution_plan
+  source_paths:
+    - prd-02.clarification.yaml
+  owner: codex
+  updated_at: "2026-04-21T11:00:00Z"
+planning_basis:
+  scope_summary:
+    - "先完成素材列表、编辑和标签管理的最小后台闭环。"
+  confirmed_constraints:
+    - "只做后台 Web 端。"
+    - "不做审批流和多语言。"
+  contract_assumptions:
+    - "contract 阶段需要明确素材状态机和搜索参数。"
+delivery_strategy:
+  sequencing_principles:
+    - "先确定核心资源与状态，再展开页面和交互。"
+    - "优先支撑素材列表与编辑闭环。"
+  phase_boundaries:
+    - "Phase 1: 资源模型和状态机"
+    - "Phase 2: 列表与编辑页面"
+    - "Phase 3: 标签管理和补充约束"
+workstreams:
+  - workstream_id: ws-core-model
+    name: 核心资源与状态
+    objective: 明确素材、标签和状态流转边界。
+    depends_on: []
+    can_run_in_parallel: false
+    outputs:
+      - "素材 contract 视图"
+      - "状态流转约束"
+  - workstream_id: ws-admin-pages
+    name: 后台页面闭环
+    objective: 明确列表、编辑、归档恢复等页面能力。
+    depends_on:
+      - ws-core-model
+    can_run_in_parallel: false
+    outputs:
+      - "页面 contract 视图"
+      - "关键页面动作"
+  - workstream_id: ws-tag-management
+    name: 标签管理
+    objective: 明确平铺标签的维护能力。
+    depends_on:
+      - ws-core-model
+    can_run_in_parallel: true
+    outputs:
+      - "标签维护 contract 视图"
+plan_steps:
+  - step_order: 1
+    name: 定义素材和标签核心模型
+    goal: 固定 contract 设计的资源边界和状态约束。
+    inputs:
+      - "已确认的 clarification"
+    outputs:
+      - "素材资源定义"
+      - "标签资源定义"
+      - "状态机约束"
+    dependencies: []
+    handoff_to: contract
+  - step_order: 2
+    name: 定义素材列表与筛选
+    goal: 固定列表页搜索、状态筛选和恢复入口。
+    inputs:
+      - "素材资源定义"
+      - "标签资源定义"
+    outputs:
+      - "列表 contract 视图"
+      - "筛选参数约束"
+    dependencies:
+      - 定义素材和标签核心模型
+    handoff_to: contract
+  - step_order: 3
+    name: 定义素材编辑与发布流程
+    goal: 固定创建、编辑、发布、归档、恢复动作。
+    inputs:
+      - "状态机约束"
+      - "页面动作清单"
+    outputs:
+      - "编辑 contract 视图"
+      - "状态流转动作"
+    dependencies:
+      - 定义素材和标签核心模型
+    handoff_to: contract
+  - step_order: 4
+    name: 定义标签管理补充能力
+    goal: 固定平铺标签的增删改和引用边界。
+    inputs:
+      - "标签资源定义"
+    outputs:
+      - "标签管理 contract 视图"
+    dependencies:
+      - 定义素材和标签核心模型
+    handoff_to: contract
+contract_priorities:
+  - module: 素材资源与状态机
+    priority: P0
+    reason: 是列表、编辑、归档恢复等能力的共同前置。
+    required_inputs:
+      - "归档恢复规则"
+      - "素材状态定义"
+    not_in_scope_for_now:
+      - "复杂审批状态"
+  - module: 素材列表与搜索
+    priority: P0
+    reason: 是运营使用闭环的关键入口。
+    required_inputs:
+      - "标签模型"
+      - "状态筛选规则"
+    not_in_scope_for_now:
+      - "高级搜索语法"
+  - module: 标签管理
+    priority: P1
+    reason: 对最小闭环重要，但可在核心资源后补充。
+    required_inputs:
+      - "平铺标签定义"
+    not_in_scope_for_now:
+      - "层级标签"
+batching_strategy:
+  principles:
+    - "先拆共享资源与状态机，再拆依赖这些约束的页面。"
+    - "列表搜索与标签管理共享筛选对象，但编辑流和状态流转必须与资源模型保持同批或紧邻批次。"
+    - "单个 batch 只承载一个清晰的 contract 目标，避免把整个后台一次性推进到 contract。"
+  batches:
+    - batch_id: batch-01-core-model
+      title: 核心资源与状态机
+      goal: 固定素材、标签与状态流转的共同边界。
+      included_modules:
+        - "素材资源与状态机"
+      depends_on_batches: []
+      contract_views:
+        - "素材 contract 视图"
+        - "状态流转动作视图"
+      handoff_to: final_prd
+    - batch_id: batch-02-admin-pages
+      title: 列表与编辑闭环
+      goal: 在共享状态机前提下收敛列表搜索、编辑与恢复动作。
+      included_modules:
+        - "素材列表与搜索"
+        - "素材编辑"
+      depends_on_batches:
+        - batch-01-core-model
+      contract_views:
+        - "素材列表查询视图"
+        - "素材详情视图"
+      handoff_to: final_prd
+    - batch_id: batch-03-tags
+      title: 标签管理补充
+      goal: 补齐平铺标签维护与引用边界。
+      included_modules:
+        - "标签管理"
+      depends_on_batches:
+        - batch-01-core-model
+      contract_views:
+        - "标签管理视图"
+      handoff_to: final_prd
+  batch_order:
+    - batch-01-core-model
+    - batch-02-admin-pages
+    - batch-03-tags
+risks_and_watchpoints:
+  blockers: []
+  coordination_notes:
+    - "状态机和页面动作必须保持一致。"
+    - "标签模型升级为层级结构时需重新评估搜索 contract。"
+  followup_watchpoints:
+    - "如果后续新增批量归档，需要重新评估列表页批量动作与状态机约束。"
+decision:
+  allow_final_prd: true
+  reason: 当前计划已明确先后顺序、依赖和 contract 优先级，可进入 final_prd。

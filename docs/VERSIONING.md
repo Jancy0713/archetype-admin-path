@@ -6,7 +6,12 @@
 
 当前版本：
 
-- `1.0.2`
+- `2.0.0`
+
+当前说明：
+
+- `2.1.0` 已进入实现中，但在完成更完整的 PRD 冒烟验证前，仓库版本暂不升级
+- 进行中的能力补强先记录到 [CHANGELOG.md](/Users/wangwenjie/project/archetype-admin-path/CHANGELOG.md) 的 `2.1.0 (in progress)` 段落
 
 ## 规则
 

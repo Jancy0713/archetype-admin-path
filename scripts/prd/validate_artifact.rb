@@ -7,7 +7,7 @@ artifact = ARGV[0]
 path = ARGV[1]
 
 if artifact.nil? || path.nil?
-  warn "Usage: ruby scripts/prd/validate_artifact.rb <clarification|review|brief|decomposition> <artifact.yml>"
+  warn "Usage: ruby scripts/prd/validate_artifact.rb <analysis|clarification|execution_plan|final_prd|review> <artifact.yml>"
   exit 1
 end
 

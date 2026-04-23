@@ -37,17 +37,20 @@
 | `init-06` | `review` | `todo / done` | `1` | `init-06.design_seed.yaml` | `init-06.review.yaml` | `init-07.bootstrap_plan.yaml` |
 | `init-07` | `bootstrap_plan` | `todo / doing / review / confirmed` | `1` | `init-06.design_seed.yaml` | `init-07.bootstrap_plan.yaml` | `init-07.review.yaml` |
 | `init-07` | `review` | `todo / done` | `1` | `init-07.bootstrap_plan.yaml` | `init-07.review.yaml` | 人工确认 |
-| `init-08` | `execution` | `todo / doing / done` | `1` | `init-07.bootstrap_plan.yaml` | 新项目初始化结果 | `prd-01.clarification.yaml` |
+| `init-08` | `execution` | `todo / doing / done` | `1` | `init-07.bootstrap_plan.yaml` | 新项目初始化结果 | `prd-01.analysis.yaml` |
 
 ## PRD
 
 | step_id | 产物 | 当前状态 | attempt | 上游输入 | 当前输出 | 下一步 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `prd-01` | `clarification` | `todo / doing / review / done` | `1` | 原始输入 | `prd-01.clarification.yaml` | `prd-01.review.yaml` |
-| `prd-01` | `review` | `todo / done` | `1` | `prd-01.clarification.yaml` | `prd-01.review.yaml` | `prd-02.brief.yaml` |
-| `prd-02` | `brief` | `todo / doing / done` | `1` | `prd-01.clarification.yaml` | `prd-02.brief.yaml` | `prd-03.decomposition.yaml` |
-| `prd-03` | `decomposition` | `todo / doing / review / done` | `1` | `prd-02.brief.yaml` | `prd-03.decomposition.yaml` | `prd-03.review.yaml` |
-| `prd-03` | `review` | `todo / done` | `1` | `prd-03.decomposition.yaml` | `prd-03.review.yaml` | Contract |
+| `prd-01` | `analysis` | `todo / doing / review / done` | `1` | 原始输入 | `prd-01.analysis.yaml` | `prd-01.review.yaml` |
+| `prd-01` | `review` | `todo / done` | `1` | `prd-01.analysis.yaml` | `prd-01.review.yaml` | `prd-02.clarification.yaml` |
+| `prd-02` | `clarification` | `todo / doing / review / confirmed` | `1` | `prd-01.analysis.yaml` | `prd-02.clarification.yaml` | `prd-02.review.yaml` |
+| `prd-02` | `review` | `todo / done` | `1` | `prd-02.clarification.yaml` | `prd-02.review.yaml` | 人工确认 |
+| `prd-03` | `execution_plan` | `todo / doing / review / done` | `1` | `prd-02.clarification.yaml` | `prd-03.execution_plan.yaml` | `prd-03.review.yaml` |
+| `prd-03` | `review` | `todo / done` | `1` | `prd-03.execution_plan.yaml` | `prd-03.review.yaml` | `prd-04.final_prd.yaml` |
+| `prd-04` | `final_prd` | `todo / doing / review / done` | `1` | `prd-03.execution_plan.yaml` | `prd-04.final_prd.yaml` | `prd-04.review.yaml` |
+| `prd-04` | `review` | `todo / done` | `1` | `prd-04.final_prd.yaml` | `prd-04.review.yaml` | Contract |
 
 ## 最小落地规则
 

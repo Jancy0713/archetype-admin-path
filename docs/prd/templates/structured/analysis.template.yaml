@@ -1,0 +1,78 @@
+artifact_type: analysis
+version: "2.0.0"
+status:
+  step: prd_analysis
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+input_summary:
+  request_summary: ""
+  project_context: []
+  inherited_constraints: []
+  assumptions_adopted: []
+scope_analysis:
+  business_goal: []
+  success_criteria: []
+  modules_in_scope: []
+  modules_out_of_scope: []
+  execution_boundary: []
+domain_breakdown:
+  modules:
+    - module_id: ""
+      name: ""
+      objective: ""
+      priority: ""
+      dependencies: []
+      notes: []
+  pages:
+    - client: ""
+      module: ""
+      name: ""
+      goal: ""
+      priority: ""
+  resources:
+    - name: ""
+      purpose: ""
+      owner: ""
+      priority: ""
+      notes: []
+  flows:
+    - name: ""
+      trigger: ""
+      outcome: ""
+      priority: ""
+      notes: []
+risk_analysis:
+  confirmed: []
+  unclear: []
+  risks: []
+  blocking_gaps:
+    p0: []
+    p1: []
+    p2: []
+clarification_candidates:
+  confirmation_items:
+    - item_id: ""
+      question: ""
+      level: secondary
+      answer_mode: single_choice
+      recommended: ""
+      options:
+        - value: ""
+          label: ""
+          description: ""
+      reason: ""
+      allow_custom_answer: true
+      default_if_no_answer: ""
+handoff:
+  recommended_next_step: clarification
+  ready_for_clarification: false
+  reason: ""

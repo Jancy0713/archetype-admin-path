@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.1.0 (in progress)
+
+- 为 `prd` 流程补齐 `2.1.0` 结构治理入口：新增按步骤组织的 prompt 索引、reviewer 材料索引与 step materials 索引，并将 `README / PROMPTS_GUIDE / WORKFLOW_GUIDE` 切到步骤化入口
+- 新增 `analysis / clarification / execution_plan / final_prd` 各自独立的 `STEP_PROMPT.md`，避免继续把主流程约束堆在单一总 prompt 中
+- 新增 reviewer 分拆资料：`reviewer/common/REVIEWER_WORKFLOW.md` 与 4 份阶段 checklist 独立落盘，使 reviewer 输入组织和阶段专项检查项可直接复用
+- 新增 `scripts/prd/materials.rb` 与 `artifact_utils.rb` 中的材料映射，支持按 `artifact` 或 `review_step` 查询正式 step prompt、rule、template、reviewer workflow 与 checklist
+- 为 `create_run.rb` 补充 PRD run 内的 `prompts/materials/` 快照，固定当前 run 使用的 artifact/review 材料入口，减少运行时手工查找全局路径
+- 为 reviewer 初始化补充包装脚本 `scripts/prd/init_review_context.rb`，可一次性生成 `review.yaml`、回填 `meta.subject_path` 并落 reviewer 材料快照，支持 `--force` 重建同一路径
+- 为 PRD 流程补充 `scripts/prd/workflow_manifest.rb`，统一维护 4 个正式步骤的 artifact、review step、render 路径、command cheat sheet 和初始进度元信息，并让 `create_run.rb` 改为从 manifest 读取运行信息
+- 新增 `scripts/prd/continue_run.rb`，支持按 `artifact / review / render` 三种模式继续推进 PRD run，并同步更新进度板
+- 新增 `scripts/prd/finalize_step.rb`，把单步收口固定为 `validate -> init_review_context -> render`，并将当前步骤状态推进到 `review`
+- 新增 `scripts/prd/review_complete.rb`，消费独立 reviewer 产物，根据 `allow_next_step / has_blocking_issue / need_human_escalation` 自动把步骤写成 `done / confirmed / blocked`
+- 新增 `scripts/prd/confirm_clarification.rb`，把 Human Confirmation Gate 正式脚本化：回写 `human_confirmation`、基于 `open_questions.p0` 决定 `allow_execution_plan`，并把 `prd-02` 状态推进为 `confirmed` 或 `blocked`
+- 收紧 `final_prd -> contract` 门禁：当 `decision.allow_contract_design=true` 时，`contract_handoff.contract_scope / priority_modules / required_contract_views / do_not_assume` 现在都必须非空且不得重复
+- 重写 `scripts/prd/render_artifact.rb` 的 Markdown 呈现方式，使 `analysis / clarification / execution_plan / final_prd / review` 更适合人工通读；同时修正对当前 Ruby 版本的兼容性问题
+- 新增 `docs/prd/examples/2.0/happy-path-run` 正式样例，覆盖四步主产物和 review 样例，并已用于 `validate / render` 回归
+- 当前 `2.1.0` 仍处于 in progress：主链路脚手架与 run 执行能力已补齐，但完整真实 run 冒烟验证与最终版本切换尚未完成，因此仓库版本暂不从 `2.0.0` 升级
+
 ## 1.0.3
 
 - 修正 `scripts/create_run.rb` 的模板选择逻辑，`prd` run 改为固定使用 `docs/templates/autonomous-run-prompt.prd.template.md`，避免把 `init` 的 Human Gate 规则混入新的 PRD 启动 prompt

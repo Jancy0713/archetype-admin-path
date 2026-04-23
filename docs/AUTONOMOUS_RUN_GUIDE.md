@@ -36,7 +36,7 @@
 - 运行 `validate`
 - 校验失败时自修
 - 生成 reviewer YAML
-- 完成 reviewer 审查
+- 调用独立 reviewer 子 agent 或独立新上下文完成 reviewer 审查
 - 根据 reviewer 结果返工
 - 渲染 Markdown
 - 更新 `progress/workflow-progress.md`
@@ -176,9 +176,11 @@ c. 平台管理后台
 
 `prd` 默认策略更激进：
 
-- `prd-01`、`prd-02`、`prd-03` 之间允许 AI 连续推进
+- `prd-01 analysis`、`prd-02 clarification`、`prd-03 execution_plan` 之间允许 AI 连续推进
+- `prd-02 clarification` 默认要停在 Human Confirmation Gate
+- `prd-04 final_prd` reviewer 通过后，才允许进入 contract
 - 如果 reviewer 发现阻塞问题、关键业务事实缺失或必须用户明确决策，才停给用户
-- 如果没有阻塞问题，AI 可以直接推进到 `prd-03.review` 结束
+- 如果没有阻塞问题，AI 可以直接推进到最近的人工作业点或 `prd-04.review` 结束
 
 ## reviewer 规则
 
@@ -191,6 +193,8 @@ reviewer 在 autonomous run 中也必须保留，但它属于 AI 内部流程，
 - reviewer 的判断仍然决定是否返工
 - 用户不需要手动触发 reviewer
 - reviewer 必须由独立 reviewer 子 agent 或独立新上下文完成，主 agent 不得自己兼任 reviewer
+- 主 agent 只能准备 reviewer 输入、调用 reviewer 子 agent、读取 reviewer 结果并据此返工
+- 主 agent 不得在同一个上下文里自写主产物再自写 reviewer 结论，这类自审视为无效 reviewer
 
 ## 进度板规则
 

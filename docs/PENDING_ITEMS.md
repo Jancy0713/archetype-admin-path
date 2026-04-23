@@ -31,6 +31,15 @@
 
 ## PRD Flow
 
+- 版本路线图见：[docs/prd/PRD_VERSION_ROADMAP.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/PRD_VERSION_ROADMAP.md)
+- 当前 `2.0.0` 迭代规划见：[docs/prd/PRD_WORKFLOW_V2_PLAN.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/PRD_WORKFLOW_V2_PLAN.md)
+- 首轮真实验证准备见：[docs/prd/PRD_2_0_VALIDATION_PREP.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/PRD_2_0_VALIDATION_PREP.md)
+- `2.1.0` 范围定义见：[docs/prd/PRD_2_1_SCOPE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/PRD_2_1_SCOPE.md)
+- 优先保持 `prd/*.yaml` 的结构稳定和内容可交接；`rendered/*.md` 的人类可读性优化可以后置
+- 明确区分 `yaml` 给 AI / 下游流程消费，`md` 给人阅读；避免为了可读性影响结构化 handoff 的稳定性
+- 后续补强 `rendered/*.md` 的可读性表达，让 batch、依赖、后续步骤对人更直观
 - 补充常用 PRD 问题清单
 - 补充更稳定的业务功能澄清题模板
 - 评估是否需要把高频 PRD 问题也做成可校验结构
+- 推进 `confirmation_items` 在 `prd` 流程中的统一协议落地
+- 明确 `final_prd -> contract` 的 handoff schema

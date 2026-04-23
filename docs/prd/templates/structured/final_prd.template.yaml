@@ -1,0 +1,104 @@
+artifact_type: final_prd
+version: "2.1.0"
+status:
+  step: final_prd_ready
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+overview:
+  product_summary: ""
+  current_goal: []
+  success_criteria: []
+  collaboration_mode: ""
+scope:
+  modules_in_scope: []
+  modules_out_of_scope: []
+  rollout_boundary: []
+roles_and_permissions:
+  roles:
+    - name: ""
+      client: ""
+      main_goal: ""
+      visible_scope: []
+      permission_notes: []
+  tenant_boundary: []
+domain_model:
+  resources:
+    - name: ""
+      resource_type: ""
+      purpose: ""
+      owner: ""
+      key_attributes: []
+      known_states: []
+experience_design:
+  modules:
+    - name: ""
+      objective: ""
+      in_scope_pages: []
+      key_actions: []
+  pages:
+    - client: ""
+      module: ""
+      name: ""
+      page_type: ""
+      goal: ""
+      primary_actions: []
+workflow_design:
+  flows:
+    - name: ""
+      trigger: ""
+      start: ""
+      key_steps: []
+      end: ""
+      is_async: false
+  states:
+    - resource_name: ""
+      current_states: []
+      missing_states: []
+constraints:
+  non_functional: []
+  external_dependencies: []
+  contract_constraints: []
+blocking_questions:
+  p0: []
+contract_execution:
+  recommended_batch_order: []
+  parallel_batches: []
+  selection_guidance: []
+prd_batches:
+  - batch_id: ""
+    title: ""
+    goal: ""
+    summary: []
+    grouped_modules: []
+    dependency_batches: []
+    grouping_reason: []
+    in_scope_pages: []
+    key_resources: []
+    key_flows: []
+    size_control:
+      target_contract_size: ""
+      keep_together: []
+      split_triggers: []
+    contract_constraints: []
+    contract_handoff:
+      contract_scope: []
+      priority_modules: []
+      required_contract_views: []
+      do_not_assume: []
+    decision:
+      allow_contract_design: false
+      reason: ""
+decision:
+  allow_contract_design: false
+  ready_batches: []
+  blocked_batches: []
+  reason: ""

@@ -1,0 +1,61 @@
+artifact_type: execution_plan
+version: "2.1.0"
+status:
+  step: prd_execution_plan
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  title: ""
+  flow_id: ""
+  step_id: ""
+  artifact_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+planning_basis:
+  scope_summary: []
+  confirmed_constraints: []
+  contract_assumptions: []
+delivery_strategy:
+  sequencing_principles: []
+  phase_boundaries: []
+workstreams:
+  - workstream_id: ""
+    name: ""
+    objective: ""
+    depends_on: []
+    can_run_in_parallel: false
+    outputs: []
+plan_steps:
+  - step_order: 1
+    name: ""
+    goal: ""
+    inputs: []
+    outputs: []
+    dependencies: []
+    handoff_to: ""
+contract_priorities:
+  - module: ""
+    priority: ""
+    reason: ""
+    required_inputs: []
+    not_in_scope_for_now: []
+batching_strategy:
+  principles: []
+  batches:
+    - batch_id: ""
+      title: ""
+      goal: ""
+      included_modules: []
+      depends_on_batches: []
+      contract_views: []
+      handoff_to: ""
+  batch_order: []
+risks_and_watchpoints:
+  blockers: []
+  coordination_notes: []
+  followup_watchpoints: []
+decision:
+  allow_final_prd: false
+  reason: ""

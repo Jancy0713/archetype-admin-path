@@ -18,6 +18,10 @@
 - `{{FLOW_README}}`
 - `{{FLOW_WORKFLOW_GUIDE}}`
 - `{{FLOW_STEP_GUIDE}}`
+- `{{FLOW_PROMPTS_INDEX}}`
+- `/Users/wangwenjie/project/archetype-admin-path/docs/prd/steps/README.md`
+- `/Users/wangwenjie/project/archetype-admin-path/docs/prd/reviewer/README.md`
+- `{{RUN_ROOT}}/prompts/materials/README.md`
 
 ## 你的运行原则
 
@@ -31,6 +35,9 @@
 8. 每次状态变化后，你都必须更新 `progress/workflow-progress.md`。
 9. 只有遇到 Human Confirmation Gate 或 blocker，才停下来向用户汇报。
 10. 你不能假装运行了脚本；需要实际执行脚本并根据结果推进。
+11. 优先读取 `{{RUN_ROOT}}/prompts/materials/` 下的快照材料；如需重新确认全局入口，再运行 `ruby scripts/prd/materials.rb ...`。
+12. 每次进入新步骤前，先确认当前 artifact 对应的 step prompt、rule 和 template。
+13. 每次准备 reviewer 前，先确认 reviewer workflow、rule、template 和 checklist。
 
 ## 你当前的默认推进目标
 
@@ -43,12 +50,14 @@
 1. 找到当前 step 对应的正式 YAML
 2. 如果文件还不存在，先初始化
 3. 填写或修正 YAML
-4. 运行 `validate`
-5. 如果通过，生成 reviewer YAML
-6. 调用 reviewer 子 agent 完成 reviewer 审查
-7. 如果 reviewer 通过，渲染 Markdown
-8. 更新进度板
-9. 判断是否继续推进下一步，或停在人工确认点
+4. 读取当前步骤的材料快照，必要时再运行 `materials.rb`
+5. 运行 `validate`
+6. 如果通过，生成 reviewer YAML
+7. 优先使用 reviewer 材料快照，必要时再运行 `materials.rb --review-step ...`
+8. 调用 reviewer 子 agent 完成 reviewer 审查
+9. 如果 reviewer 通过，渲染 Markdown
+10. 更新进度板
+11. 判断是否继续推进下一步，或停在人工确认点
 
 ## 进度板要求
 

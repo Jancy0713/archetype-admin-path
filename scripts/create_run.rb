@@ -4,6 +4,8 @@ require "pathname"
 require "time"
 require "date"
 require_relative "init/workflow_manifest"
+require_relative "prd/artifact_utils"
+require_relative "prd/workflow_manifest"
 require_relative "progress_board"
 
 ROOT = File.expand_path("..", __dir__)
@@ -76,6 +78,11 @@ end
 def copy_template(template_path, target_path)
   FileUtils.mkdir_p(File.dirname(target_path))
   FileUtils.cp(template_path, target_path)
+end
+
+def write_yaml_file(path, data)
+  FileUtils.mkdir_p(File.dirname(path))
+  File.write(path, YAML.dump(data))
 end
 
 def normalize_progress_template(progress_path, flow)
@@ -235,6 +242,46 @@ def build_handoff_content
   MD
 end
 
+def build_prd_materials_readme
+  <<~MD
+    # PRD Materials Snapshot
+
+    这里是当前 run 固定下来的 PRD 材料快照。
+
+    使用方式：
+
+    1. 主产物前，先读 `artifacts/<artifact>.yml`
+    2. reviewer 前，先读 `reviews/<review_step>.yml`
+    3. 如果全局文档后续继续演进，这里的快照仍可作为当前 run 的稳定入口
+
+    当前目录：
+
+    - `artifacts/analysis.yml`
+    - `artifacts/clarification.yml`
+    - `artifacts/execution_plan.yml`
+    - `artifacts/final_prd.yml`
+    - `reviews/prd_analysis.yml`
+    - `reviews/prd_clarification.yml`
+    - `reviews/prd_execution_plan.yml`
+    - `reviews/final_prd_ready.yml`
+  MD
+end
+
+def write_prd_material_snapshots(run_root)
+  base = File.join(run_root, "prompts", "materials")
+  write_file(File.join(base, "README.md"), build_prd_materials_readme)
+
+  %w[analysis clarification execution_plan final_prd].each do |artifact|
+    payload = Prd::ArtifactUtils.artifact_materials(artifact)
+    write_yaml_file(File.join(base, "artifacts", "#{artifact}.yml"), payload)
+  end
+
+  Prd::ArtifactUtils::REVIEWABLE_STEPS.each do |review_step|
+    payload = Prd::ArtifactUtils.review_materials(review_step)
+    write_yaml_file(File.join(base, "reviews", "#{review_step}.yml"), payload)
+  end
+end
+
 def build_init_prompt(run_root, title)
   build_autonomous_prompt(
     flow: "init",
@@ -253,11 +300,11 @@ def build_prd_prompt(run_root, title)
     flow: "prd",
     template_path: File.join(ROOT, "docs/templates/autonomous-run-prompt.prd.template.md"),
     run_root: run_root,
-    first_step_id: "prd-01",
-    first_artifact: "prd/prd-01.clarification.yaml",
-    first_review: "prd/prd-01.review.yaml",
-    validate_command: "ruby scripts/prd/validate_artifact.rb clarification #{File.join(run_root, 'prd/prd-01.clarification.yaml')}",
-    render_command: "ruby scripts/prd/render_artifact.rb clarification #{File.join(run_root, 'prd/prd-01.clarification.yaml')} #{File.join(run_root, 'rendered/prd-01.clarification.md')}"
+    first_step_id: PrdFlow::WorkflowManifest.first_step_id,
+    first_artifact: PrdFlow::WorkflowManifest.first_artifact_relative_path,
+    first_review: PrdFlow::WorkflowManifest.first_review_relative_path,
+    validate_command: PrdFlow::WorkflowManifest.validate_command(PrdFlow::WorkflowManifest.first_step_id, run_root),
+    render_command: PrdFlow::WorkflowManifest.render_command(PrdFlow::WorkflowManifest.first_step_id, run_root)
   )
 end
 
@@ -269,7 +316,7 @@ def build_autonomous_prompt(flow:, template_path:, run_root:, first_step_id:, fi
     "{{FLOW_README}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/README.md",
     "{{FLOW_WORKFLOW_GUIDE}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/WORKFLOW_GUIDE.md",
     "{{FLOW_STEP_GUIDE}}" => "/Users/wangwenjie/project/archetype-admin-path/docs/#{flow}/STEP_NAMING_GUIDE.md",
-    "{{FLOW_PROMPTS_INDEX}}" => flow == "init" ? "/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md" : "/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/MASTER_PROMPT.md",
+    "{{FLOW_PROMPTS_INDEX}}" => flow == "init" ? "/Users/wangwenjie/project/archetype-admin-path/docs/init/prompts/README.md" : "/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/README.md",
     "{{FLOW_REFACTOR_GUIDE}}" => flow == "init" ? "/Users/wangwenjie/project/archetype-admin-path/docs/init/WORKFLOW_REFACTOR_GUIDE.md" : "/Users/wangwenjie/project/archetype-admin-path/docs/prd/WORKFLOW_GUIDE.md",
     "{{FIRST_STEP_ID}}" => first_step_id,
     "{{FIRST_ARTIFACT}}" => first_artifact,
@@ -287,61 +334,7 @@ def flow_command_cheat_sheet(flow, run_root)
   when "init"
     InitFlow::WorkflowManifest.command_cheat_sheet(run_root)
   when "prd"
-    <<~MD
-      ### PRD Step Map
-
-      - `prd-01` -> `clarification`
-      - `prd-02` -> `brief`
-      - `prd-03` -> `decomposition`
-
-      ### PRD Commands
-
-      初始化 clarification：
-
-      ```bash
-      ruby scripts/prd/init_artifact.rb --step-id prd-01 clarification #{File.join(run_root, "prd/prd-01.clarification.yaml")}
-      ```
-
-      初始化 clarification reviewer：
-
-      ```bash
-      ruby scripts/prd/init_artifact.rb --step requirement_clarification --step-id prd-01 review #{File.join(run_root, "prd/prd-01.review.yaml")}
-      ```
-
-      初始化 brief：
-
-      ```bash
-      ruby scripts/prd/init_artifact.rb --step-id prd-02 brief #{File.join(run_root, "prd/prd-02.brief.yaml")}
-      ```
-
-      初始化 decomposition：
-
-      ```bash
-      ruby scripts/prd/init_artifact.rb --step-id prd-03 decomposition #{File.join(run_root, "prd/prd-03.decomposition.yaml")}
-      ```
-
-      初始化 decomposition reviewer：
-
-      ```bash
-      ruby scripts/prd/init_artifact.rb --step prd_decomposition --step-id prd-03 review #{File.join(run_root, "prd/prd-03.review.yaml")}
-      ```
-
-      校验主产物：
-
-      ```bash
-      ruby scripts/prd/validate_artifact.rb clarification #{File.join(run_root, "prd/prd-01.clarification.yaml")}
-      ```
-
-      渲染主产物：
-
-      ```bash
-      ruby scripts/prd/render_artifact.rb clarification #{File.join(run_root, "prd/prd-01.clarification.yaml")} #{File.join(run_root, "rendered/prd-01.clarification.md")}
-      ```
-
-      Human Gate:
-
-      - 默认只在 blocker、关键决策缺失或最终需要人工确认时停
-    MD
+    PrdFlow::WorkflowManifest.command_cheat_sheet(run_root)
   end
 end
 
@@ -351,14 +344,7 @@ def update_progress_meta(progress_path, run_id:, owner:, flow:)
     if flow == "init"
       InitFlow::WorkflowManifest.initial_progress_meta
     else
-      {
-        "current_step_id" => "prd-01",
-        "overall_status" => "doing",
-        "current_goal" => "完成首个结构化 YAML",
-        "current_blocker" => "",
-        "next_agent_input" => "raw/request.md",
-        "next_expected_output" => "prd/prd-01.clarification.yaml"
-      }
+      PrdFlow::WorkflowManifest.initial_progress_meta
     end
   replacements = {
     "- run_id:" => "- run_id: #{run_id}",
@@ -381,7 +367,7 @@ def update_progress_meta(progress_path, run_id:, owner:, flow:)
     replacement ? replacements.fetch(replacement) : line
   end
 
-  first_step_id = flow == "init" ? "`init-01`" : "`prd-01`"
+  first_step_id = flow == "init" ? "`#{InitFlow::WorkflowManifest.first_step_id}`" : "`#{PrdFlow::WorkflowManifest.first_step_id}`"
   File.write(progress_path, updated.join("\n") + "\n")
   board = WorkflowProgressBoard::Board.new(progress_path)
   board.update_row(first_step_id.delete("`"), status: "doing")
@@ -428,8 +414,9 @@ when "init"
   run_command("ruby", File.join(ROOT, "scripts/init/profile/init_project_profile_step.rb"), run_root, InitFlow::WorkflowManifest.first_step_id)
   prompt_content = build_init_prompt(run_root, title)
 when "prd"
-  artifact_path = File.join(run_root, "prd/prd-01.clarification.yaml")
-  run_command("ruby", File.join(ROOT, "scripts/prd/init_artifact.rb"), "--step-id", "prd-01", "clarification", artifact_path)
+  artifact_path = File.join(run_root, PrdFlow::WorkflowManifest.first_artifact_relative_path)
+  run_command("ruby", File.join(ROOT, "scripts/prd/init_artifact.rb"), "--step-id", PrdFlow::WorkflowManifest.first_step_id, PrdFlow::WorkflowManifest.first_artifact, artifact_path)
+  write_prd_material_snapshots(run_root)
   prompt_content = build_prd_prompt(run_root, title)
 end
 
@@ -451,4 +438,5 @@ puts "补充参考："
 puts "- 原始输入说明：#{relative_to_root(File.join(run_root, 'raw/README.md'))}"
 puts "- 进度板：#{relative_to_root(File.join(run_root, 'progress/workflow-progress.md'))}"
 puts "- 交接说明：#{relative_to_root(File.join(run_root, 'progress/handoff-notes.md'))}"
+puts "- PRD 材料快照：#{relative_to_root(File.join(run_root, 'prompts/materials/README.md'))}" if flow == "prd"
 puts "- 首个正式产物会写到：#{relative_to_root(artifact_path)}"

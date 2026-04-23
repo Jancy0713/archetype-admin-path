@@ -45,15 +45,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["原始需求 / PRD / 原型"] --> P01["prd-01<br/>clarification"]
+    A["原始需求 / PRD / 原型"] --> P01["prd-01<br/>analysis"]
     P01 --> P01V["validate"]
     P01V --> P01R["review"]
-    P01R --> P02["prd-02<br/>brief"]
+    P01R --> P02["prd-02<br/>clarification"]
     P02 --> P02V["validate"]
-    P02V --> P03["prd-03<br/>decomposition"]
+    P02V --> P02R["review"]
+    P02R --> P02H["human confirm"]
+    P02H --> P03["prd-03<br/>execution_plan"]
     P03 --> P03V["validate"]
     P03V --> P03R["review"]
-    P03R --> P04["进入 Contract 设计"]
+    P03R --> P04["prd-04<br/>final_prd"]
+    P04 --> P04V["validate"]
+    P04V --> P04R["review"]
+    P04R --> P05["进入 Contract 设计"]
 ```
 
 ## 依赖原则

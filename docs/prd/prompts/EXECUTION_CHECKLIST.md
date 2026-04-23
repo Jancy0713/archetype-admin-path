@@ -1,112 +1,95 @@
 # 执行清单
 
-## 目标
+## Step 1：analysis
 
-这份清单用于实际跑一轮 PRD 拆解流程时，防止遗漏步骤。
+输入：
 
-## Step 1：需求补充提问
-
-主模型输入：
-
-- 原始 PRD / 原型 / 简述
-- [MASTER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/MASTER_PROMPT.md)
-- [rules/REQUIREMENT_CLARIFICATION_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/REQUIREMENT_CLARIFICATION_RULE.md)
-- [templates/structured/clarification.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/clarification.template.yaml)
+- 原始需求 / PRD / 原型 / init 交接输入
+- [analysis step prompt](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/analysis/STEP_PROMPT.md)
+- [ANALYSIS_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/ANALYSIS_RULE.md)
+- [analysis.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/analysis.template.yaml)
 
 检查点：
 
-- 是否已经列出缺口
-- 是否已经提出补问问题
-- 是否已经标出 P0
-- 是否只输出 YAML，没有自由 Markdown
-- 是否优先使用 `decision_candidates` 和 `proposed_defaults`，而不是抛一堆开放题
+- 是否完成范围和模块拆分
+- 是否列出风险和阻塞缺口
+- 是否形成待澄清候选项
 
-## Step 2：Reviewer 审查补问结果
-
-reviewer 输入：
-
-- 主模型输出
-- 已通过：
-  - `ruby scripts/prd/validate_artifact.rb clarification path/to/clarification.yaml`
-- [REVIEWER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/REVIEWER_PROMPT.md)
-- [rules/REVIEWER_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/REVIEWER_RULE.md)
-- [templates/structured/review.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/review.template.yaml)
-- 建议先执行：
-  - `ruby scripts/prd/init_artifact.rb --step requirement_clarification review path/to/review.yaml`
+## Step 2：analysis review
 
 检查点：
 
-- 是否漏掉关键问题域
-- 是否过早默认业务边界
-- 是否允许进入 brief
-- `meta.subject_path` 是否指向当前被审的 clarification YAML
-- 当前审查是否聚焦内容而不是重复脚本已覆盖的格式问题
+- 是否允许进入 clarification
+- 是否遗漏关键缺口
+- `meta.subject_path` 是否指向当前 analysis YAML
+- 是否由独立 reviewer 子 agent 或独立上下文完成，而不是主 agent 自审
+- 是否满足 [prd_analysis reviewer checklist](/Users/wangwenjie/project/archetype-admin-path/docs/prd/reviewer/checklists/prd_analysis.md)
 
-## Step 3：澄清版 Brief
+## Step 3：clarification
 
-主模型输入：
+输入：
 
-- 已补充后的关键信息
-- [MASTER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/MASTER_PROMPT.md)
-- [templates/structured/brief.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/brief.template.yaml)
-
-检查点：
-
-- 是否固定了当前共识
-- 是否把待确认项独立列出
-- 是否只填写 YAML 模板，不写额外说明
-- 是否已经通过：
-  - `ruby scripts/prd/validate_artifact.rb brief path/to/brief.yaml`
-- 是否沉淀了关键决策候选项和可沿用默认值
-
-## Step 4：PRD 结构化拆解
-
-主模型输入：
-
-- 澄清版 brief
-- [MASTER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/MASTER_PROMPT.md)
-- [rules/PRD_DECOMPOSITION_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/PRD_DECOMPOSITION_RULE.md)
-- [templates/structured/decomposition.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/decomposition.template.yaml)
+- 已通过 review 的 analysis
+- [clarification step prompt](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/clarification/STEP_PROMPT.md)
+- [REQUIREMENT_CLARIFICATION_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/REQUIREMENT_CLARIFICATION_RULE.md)
+- [clarification.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/clarification.template.yaml)
 
 检查点：
 
-- 是否拆出了模块、页面、角色、资源、流程、状态
-- 是否独立列出了待确认项
-- 是否只输出 YAML，没有自由 Markdown
+- 是否统一使用 `confirmation_items`
+- `confirmation_items.item_id` 是否使用稳定编号，便于 Human Gate 按编号回复
+- 是否只保留真正需要确认的问题
+- 是否准备好 Human Confirmation Gate
 
-## Step 5：Reviewer 审查结构化拆解
-
-reviewer 输入：
-
-- 结构化拆解结果
-- 已通过：
-  - `ruby scripts/prd/validate_artifact.rb decomposition path/to/decomposition.yaml`
-- [REVIEWER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/REVIEWER_PROMPT.md)
-- [rules/REVIEWER_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/REVIEWER_RULE.md)
-- [templates/structured/review.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/review.template.yaml)
-- 建议先执行：
-  - `ruby scripts/prd/init_artifact.rb --step prd_decomposition review path/to/review.yaml`
+## Step 4：clarification review + human confirm
 
 检查点：
 
-- 是否有 P0 阻塞
-- 是否可以进入 contract
-- 是否超过 retry 上限
-- `meta.subject_path` 是否指向当前被审的 decomposition YAML
-- 当前审查是否聚焦内容而不是重复脚本已覆盖的格式问题
+- reviewer 是否允许进入下一步
+- human confirmation 是否已完成
+- 所有 `required` 级确认项是否都已在 `clarified_decisions.item_id` 中收口
+- `decision.allow_execution_plan` 是否真实成立
+- reviewer 是否由独立 reviewer 子 agent 或独立上下文执行
+- 是否满足 [prd_clarification reviewer checklist](/Users/wangwenjie/project/archetype-admin-path/docs/prd/reviewer/checklists/prd_clarification.md)
 
-## Retry 规则
+## Step 5：execution_plan
 
-- 每个关口最大 retry：`2`
-- 超过后必须升级给人
+输入：
 
-## 当前执行约束
+- 已确认的 clarification
+- [execution_plan step prompt](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/execution_plan/STEP_PROMPT.md)
+- [EXECUTION_PLAN_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/EXECUTION_PLAN_RULE.md)
+- [execution_plan.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/execution_plan.template.yaml)
 
-- AI 主输出一律为 YAML
-- Markdown 只作为渲染结果给人看，不作为模型主产物
-- 每次主模型产出后必须先运行：
-  - `ruby scripts/prd/validate_artifact.rb <type> <artifact.yml>`
-- 脚本校验失败时，不进入 reviewer，直接返工修正 YAML
-- `brief` 必须至少引用一个 `clarification` 产物
-- `decomposition` 必须至少引用一个 `brief` 产物
-- `review` 必须指向与当前关口一致的被审 YAML
+检查点：
+
+- 是否明确先后顺序
+- 是否明确 contract 优先级
+- 是否识别关键依赖
+
+## Step 6：final_prd
+
+输入：
+
+- 已通过 review 的 execution_plan
+- 已确认的 clarification
+- [final_prd step prompt](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/final_prd/STEP_PROMPT.md)
+- [FINAL_PRD_RULE.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/rules/FINAL_PRD_RULE.md)
+- [final_prd.template.yaml](/Users/wangwenjie/project/archetype-admin-path/docs/prd/templates/structured/final_prd.template.yaml)
+
+检查点：
+
+- 是否足够支撑 contract
+- 是否还有 P0 未解问题
+- ready batch 的 `contract_handoff` 是否完整
+- `prd_batches` 是否合理拆分
+
+## Step 7：final_prd review
+
+检查点：
+
+- 是否允许进入 contract
+- 是否仍有 blocking issue
+- `meta.subject_path` 是否指向当前 final_prd YAML
+- reviewer 是否由独立 reviewer 子 agent 或独立上下文执行
+- 是否满足 [final_prd_ready reviewer checklist](/Users/wangwenjie/project/archetype-admin-path/docs/prd/reviewer/checklists/final_prd_ready.md)

@@ -35,14 +35,17 @@ runs/
       init-06.design_seed.yaml
       init-07.bootstrap_plan.yaml
     prd/
-      prd-01.clarification.yaml
+      prd-01.analysis.yaml
       prd-01.review.yaml
-      prd-02.brief.yaml
-      prd-03.decomposition.yaml
+      prd-02.clarification.yaml
+      prd-02.review.yaml
+      prd-03.execution_plan.yaml
       prd-03.review.yaml
+      prd-04.final_prd.yaml
+      prd-04.review.yaml
     rendered/
       init-01.project_profile.md
-      prd-01.clarification.md
+      prd-01.analysis.md
     progress/
       workflow-progress.md
       decisions.md
@@ -186,7 +189,7 @@ YYYY-MM-DD-主题短名
 
 例如：
 
-- `prd-01` 第一次失败后返工，仍然是 `prd-01.clarification.yaml`
+- `prd-01` 第一次失败后返工，仍然是 `prd-01.analysis.yaml`
 - 重试次数体现在 YAML 的 `status.attempt`
 - 进度板只更新这一行，不新增新步骤
 
@@ -219,7 +222,7 @@ runs/<run-id>/archive/
 2. 在 `prd/` 初始化当前步骤 YAML
 3. 让主模型填写 YAML
 4. 跑脚本校验
-5. reviewer 审查
+5. 让独立 reviewer 子 agent 或独立新上下文产出同一步的 review YAML
 6. 在 `progress/` 更新进度板
 7. 进入下一步
 

@@ -1,0 +1,27 @@
+artifact_type: review
+version: "2.0.0"
+status:
+  step: prd_analysis
+  attempt: 1
+  max_retry: 2
+meta:
+  subject_type: analysis
+  flow_id: prd
+  step_id: prd-01
+  artifact_id: prd-01.review
+  subject_path: prd-01.analysis.yaml
+  reviewer: reviewer-agent
+  updated_at: "2026-04-21T10:35:00Z"
+findings:
+  issues: []
+  missing_info:
+    - "标签模型仍需在 clarification 中进一步确认。"
+  p0: []
+decision:
+  has_blocking_issue: false
+  allow_next_step: true
+  need_human_escalation: false
+  reason: analysis 已满足进入 clarification 的条件，未发现阻塞性缺口。
+required_revisions: []
+notes:
+  - "后续 reviewer 应重点检查状态流转是否在澄清阶段被稳定确认。"

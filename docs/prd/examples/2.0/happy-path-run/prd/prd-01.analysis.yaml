@@ -1,0 +1,168 @@
+artifact_type: analysis
+version: "2.0.0"
+status:
+  step: prd_analysis
+  attempt: 1
+  max_retry: 2
+  ready_for_next: true
+meta:
+  title: "素材库管理后台 analysis"
+  flow_id: prd
+  step_id: prd-01
+  artifact_id: prd-01.analysis
+  source_paths:
+    - ../raw/request.md
+  owner: codex
+  updated_at: "2026-04-21T10:30:00Z"
+input_summary:
+  request_summary: "为内部素材库管理后台整理最小可用范围，用于后续澄清、计划和 contract 设计。"
+  project_context:
+    - "当前只覆盖后台 Web 管理端。"
+    - "主要角色是管理员和运营。"
+  inherited_constraints:
+    - "本轮不做外部分享。"
+    - "本轮不做审批流和多语言。"
+  assumptions_adopted:
+    - "素材仅考虑图文类管理，不引入复杂媒体处理。"
+scope_analysis:
+  business_goal:
+    - "让内部团队可统一维护素材条目。"
+    - "让运营可以快速检索和定位素材。"
+  success_criteria:
+    - "管理员能完成素材创建、编辑和归档。"
+    - "运营能按标签和状态搜索素材。"
+  modules_in_scope:
+    - "素材列表"
+    - "素材编辑"
+    - "标签管理"
+  modules_out_of_scope:
+    - "外部分享"
+    - "审批流"
+    - "多语言内容管理"
+  execution_boundary:
+    - "只输出当前最小后台闭环。"
+    - "contract 阶段再继续细化接口和状态约束。"
+domain_breakdown:
+  modules:
+    - module_id: asset-list
+      name: 素材列表
+      objective: 支撑检索、筛选和进入编辑。
+      priority: P0
+      dependencies:
+        - 资产实体定义
+      notes:
+        - 需要支持标签和状态筛选
+    - module_id: asset-editor
+      name: 素材编辑
+      objective: 支撑创建、编辑和归档素材。
+      priority: P0
+      dependencies:
+        - 素材列表
+      notes:
+        - 需要覆盖草稿和发布态编辑
+    - module_id: tag-management
+      name: 标签管理
+      objective: 支撑统一维护标签集合。
+      priority: P1
+      dependencies:
+        - 资产实体定义
+      notes:
+        - 可先做简单增删改
+  pages:
+    - client: admin-web
+      module: 素材列表
+      name: 素材列表页
+      goal: 快速检索和定位素材。
+      priority: P0
+    - client: admin-web
+      module: 素材编辑
+      name: 素材编辑页
+      goal: 创建和维护素材详情。
+      priority: P0
+    - client: admin-web
+      module: 标签管理
+      name: 标签管理页
+      goal: 维护可选标签。
+      priority: P1
+  resources:
+    - name: 素材
+      purpose: 作为被管理的核心资源。
+      owner: 内容运营
+      priority: P0
+      notes:
+        - 需要标题、描述、标签、状态
+    - name: 标签
+      purpose: 支撑运营分类和搜索。
+      owner: 管理员
+      priority: P1
+      notes:
+        - 需要避免重复标签
+  flows:
+    - name: 创建素材
+      trigger: 管理员点击新建
+      outcome: 生成草稿素材
+      priority: P0
+      notes:
+        - 保存后可继续补充内容
+    - name: 发布素材
+      trigger: 管理员完成编辑并发布
+      outcome: 素材状态变为已发布
+      priority: P0
+      notes:
+        - 发布后仍允许再次编辑
+    - name: 搜索素材
+      trigger: 运营输入标签或选择状态
+      outcome: 返回符合条件的素材列表
+      priority: P0
+      notes:
+        - 搜索结果需要稳定反映状态
+risk_analysis:
+  confirmed:
+    - "素材有草稿、已发布、已归档三种状态。"
+    - "当前只做后台管理端。"
+  unclear:
+    - "标签是否允许层级结构。"
+    - "归档后是否允许恢复。"
+  risks:
+    - "状态流转规则不清会影响 contract 设计。"
+  blocking_gaps:
+    p0: []
+    p1:
+      - "标签是否支持层级和别名尚未确认。"
+    p2: []
+clarification_candidates:
+  confirmation_items:
+    - item_id: prd-01-01
+      question: 归档后的素材是否允许恢复到草稿或已发布状态？
+      level: primary
+      answer_mode: single_choice
+      recommended: restorable
+      options:
+        - value: restorable
+          label: 允许恢复
+          description: 归档素材可恢复，便于误操作回退。
+        - value: terminal
+          label: 不可恢复
+          description: 归档后视为终态，只保留查看记录。
+      reason: 这会直接影响状态机和编辑权限设计。
+      allow_custom_answer: false
+      default_if_no_answer: restorable
+    - item_id: prd-01-02
+      question: 标签本轮是否只做平铺标签，不做层级标签？
+      level: secondary
+      answer_mode: single_choice
+      recommended: flat
+      options:
+        - value: flat
+          label: 平铺标签
+          description: 先做简单标签集合，降低首轮复杂度。
+        - value: hierarchical
+          label: 层级标签
+          description: 标签支持父子层级和更复杂分类。
+      reason: 会影响标签管理和搜索筛选的 contract 范围。
+      allow_custom_answer: false
+      default_if_no_answer: flat
+handoff:
+  recommended_next_step: clarification
+  ready_for_clarification: true
+  reason: 当前分析已覆盖范围、资源和关键待确认项，可以进入澄清阶段。

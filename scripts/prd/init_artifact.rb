@@ -37,7 +37,7 @@ artifact = args[0]
 target = args[1]
 
 if artifact.nil? || target.nil?
-  warn "Usage: ruby scripts/prd/init_artifact.rb [--force] [--step requirement_clarification|prd_decomposition] [--step-id prd-01] [--flow-id prd] [--artifact-id prd-01.clarification] <clarification|review|brief|decomposition> <target.yml>"
+  warn "Usage: ruby scripts/prd/init_artifact.rb [--force] [--step prd_analysis|prd_clarification|prd_execution_plan|final_prd_ready] [--step-id prd-01] [--flow-id prd] [--artifact-id prd-01.analysis] <analysis|clarification|execution_plan|final_prd|review> <target.yml>"
   exit 1
 end
 

@@ -39,9 +39,10 @@
 
 | step_id | artifact | status | attempt | input | output | reviewer | human_confirmation | next |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `prd-01` | `clarification` | `todo` | `1` | `raw/request.md` | `prd/prd-01.clarification.yaml` | `prd/prd-01.review.yaml` | `optional` | `prd-02` |
-| `prd-02` | `brief` | `todo` | `1` | `prd/prd-01.clarification.yaml` | `prd/prd-02.brief.yaml` | `` | `optional` | `prd-03` |
-| `prd-03` | `decomposition` | `todo` | `1` | `prd/prd-02.brief.yaml` | `prd/prd-03.decomposition.yaml` | `prd/prd-03.review.yaml` | `optional` | `contract` |
+| `prd-01` | `analysis` | `todo` | `1` | `raw/request.md` | `prd/prd-01.analysis.yaml` | `prd/prd-01.review.yaml` | `not_needed` | `prd-02` |
+| `prd-02` | `clarification` | `todo` | `1` | `prd/prd-01.analysis.yaml` | `prd/prd-02.clarification.yaml` | `prd/prd-02.review.yaml` | `required` | `prd-03` |
+| `prd-03` | `execution_plan` | `todo` | `1` | `prd/prd-02.clarification.yaml` | `prd/prd-03.execution_plan.yaml` | `prd/prd-03.review.yaml` | `not_needed` | `prd-04` |
+| `prd-04` | `final_prd` | `todo` | `1` | `prd/prd-03.execution_plan.yaml` | `prd/prd-04.final_prd.yaml` | `prd/prd-04.review.yaml` | `optional` | `contract` |
 
 ## Decisions
 

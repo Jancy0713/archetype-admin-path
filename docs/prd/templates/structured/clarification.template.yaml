@@ -1,7 +1,7 @@
 artifact_type: clarification
-version: "1.0"
+version: "2.0.0"
 status:
-  step: requirement_clarification
+  step: prd_clarification
   attempt: 1
   max_retry: 2
   ready_for_next: false
@@ -13,43 +13,41 @@ meta:
   source_paths: []
   owner: ""
   updated_at: ""
-confirmed:
-  product_type: ""
-  target_users: []
-  primary_platforms: []
-  in_scope: []
-  out_of_scope: []
-gaps:
-  p0: []
-  p1: []
-  p2: []
-questions:
-  business_goal: []
-  role_and_tenant: []
-  resources: []
-  workflows: []
-  states_and_rules: []
-  frontend_backend_split: []
-decision_candidates:
-  - topic: ""
+clarification_context:
+  scope_summary: []
+  inherited_constraints: []
+  fixed_assumptions: []
+  excluded_topics: []
+confirmation_items:
+  - item_id: ""
     question: ""
-    explanation: ""
+    level: secondary
+    answer_mode: single_choice
     recommended: ""
     options:
       - value: ""
         label: ""
         description: ""
-    allow_multiple: false
+    reason: ""
+    allow_custom_answer: true
     default_if_no_answer: ""
-    must_confirm: true
-proposed_defaults:
+applied_defaults:
   - topic: ""
-    explanation: ""
-    default_value: ""
+    adopted_value: ""
     rationale: ""
-    alternatives: []
-    must_confirm: false
     upgrade_condition: ""
+clarified_decisions:
+  - item_id: ""
+    topic: ""
+    decision: ""
+    source: ""
+    impact: []
+human_confirmation:
+  required: true
+  confirmed: false
+  summary: ""
+  confirmed_by: ""
+  confirmed_at: ""
 decision:
-  allowed_to_write_brief: false
+  allow_execution_plan: false
   reason: ""

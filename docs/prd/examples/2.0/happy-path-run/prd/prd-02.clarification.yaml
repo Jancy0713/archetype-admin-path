@@ -1,0 +1,72 @@
+artifact_type: clarification
+version: "2.0.0"
+status:
+  step: prd_clarification
+  attempt: 1
+  max_retry: 2
+  ready_for_next: true
+meta:
+  title: "素材库管理后台 clarification"
+  flow_id: prd
+  step_id: prd-02
+  artifact_id: prd-02.clarification
+  source_paths:
+    - prd-01.analysis.yaml
+  owner: codex
+  updated_at: "2026-04-21T10:45:00Z"
+clarification_context:
+  scope_summary:
+    - "本轮只做后台 Web 管理端的素材管理闭环。"
+    - "管理员负责创建、编辑、发布、归档；运营负责搜索与查看。"
+  inherited_constraints:
+    - "不做外部分享、审批流和多语言。"
+  fixed_assumptions:
+    - "标签本轮默认采用平铺模型。"
+  excluded_topics:
+    - "复杂媒体处理"
+    - "外部协作能力"
+confirmation_items:
+  - item_id: prd-02-01
+    question: 归档后的素材是否允许恢复到草稿或已发布状态？
+    level: required
+    answer_mode: single_choice
+    recommended: restorable
+    options:
+      - value: restorable
+        label: 允许恢复
+        description: 便于纠错和重新启用素材。
+      - value: terminal
+        label: 不可恢复
+        description: 归档后视为终态。
+    reason: 会直接影响状态流转规则和编辑入口。
+    allow_custom_answer: false
+    default_if_no_answer: restorable
+applied_defaults:
+  - topic: 标签模型
+    adopted_value: 平铺标签
+    rationale: 当前需求只要求按标签搜索，不需要层级分类。
+    upgrade_condition: 如果后续出现复杂分类导航需求，再升级为层级标签。
+clarified_decisions:
+  - item_id: prd-02-01
+    topic: 归档恢复
+    decision: 归档素材允许恢复到草稿状态，再由管理员重新发布。
+    source: 人工确认
+    impact:
+      - "状态机需要支持 archived -> draft。"
+      - "列表页需要提供恢复操作。"
+  - item_id: ""
+    topic: 标签模型
+    decision: 本轮只做平铺标签，不做层级标签。
+    source: 默认采用并获认可
+    impact:
+      - "标签管理只需支持简单增删改。"
+      - "搜索筛选按单层标签集合实现。"
+human_confirmation:
+  required: true
+  confirmed: true
+  summary: 已确认归档可恢复，标签采用平铺模型。
+  confirmed_by: product-owner
+  confirmed_at: "2026-04-21T10:44:00Z"
+decision:
+  allow_execution_plan: true
+  reason: 人工确认已完成，且所有 required 级确认项都已收口。
