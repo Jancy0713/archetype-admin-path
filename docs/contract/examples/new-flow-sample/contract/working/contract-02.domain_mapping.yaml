@@ -1,0 +1,69 @@
+---
+artifact_type: domain_mapping
+version: 1.0.0
+status:
+  step: domain_mapping
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-02
+  artifact_id: contract-02.domain_mapping
+  contract_id: batch-foundation-access
+  batch_id: batch-foundation-access
+  run_id: 2026-04-26-contract-batch-foundation-access
+  source_paths: []
+  owner: ''
+  updated_at: '2026-04-26T03:38:14Z'
+mapping_basis:
+  scope_intake_path: contract-01.scope_intake.yaml
+  handoff_snapshot_path: ../../intake/contract-handoff.snapshot.yaml
+  source_final_prd_path: ../../../../runs/2026-04-26-ai-init-prd-final/prd/prd-04.final_prd.yaml
+  referenced_release_contracts: []
+  referenced_artifacts: []
+resource_map:
+  resources:
+  - name: Account
+    kind: entity
+    ownership: foundation
+    summary: Core access account
+    shared_or_new: new
+    related_views:
+    - AccessList
+action_map:
+  actions:
+  - name: listAccounts
+    resource_name: Account
+    action_type: query
+    summary: List accounts
+    related_views:
+    - AccessList
+state_and_enum_map:
+  state_groups:
+  - resource_name: ''
+    states_defined_here: []
+    shared_states: []
+    enums_defined_here: []
+    shared_enums: []
+access_map:
+  roles: []
+  permission_points: []
+  tenant_rules: []
+consumer_view_map:
+  views:
+  - name: AccessList
+    view_type: table
+    goal: View access accounts
+    primary_resources:
+    - Account
+    primary_actions:
+    - listAccounts
+reference_plan:
+  depends_on_modules: []
+  symbol_references: []
+  definitions_to_finalize_in_spec:
+  - Account list contract
+decision:
+  allow_contract_spec: true
+  reason: mapping ready

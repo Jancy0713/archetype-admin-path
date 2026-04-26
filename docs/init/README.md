@@ -77,11 +77,11 @@
 - `design_seed / bootstrap_plan` 已接入独立 YAML 模板、脚本初始化、校验和 Markdown 渲染
 - `bootstrap_plan` 下的 `project_conventions` 是项目内长期规则文件；`init_execution_scope` 和 `prd_bootstrap_context` 则是 init / prd 流程的执行依据
 - `scripts/init/prefill_from_upstream.rb` 已支持从上游产物预填 06/07 初稿
-- 脚本负责结构约束、骨架初始化和格式校验；05-07 的内容增强、细节补全和语义收敛应由 AI 完成
+- 脚本负责结构约束、骨架初始化和格式校验；后续内容增强、细节补全和语义收敛应由 AI 完成
 
 当前推荐阅读顺序：
 
-0. [待定与后续补充](/Users/wangwenjie/project/archetype-admin-path/docs/PENDING_ITEMS.md)
+0. [待定与后续补充](/Users/wangwenjie/project/archetype-admin-path/docs/development_progress/PENDING_ITEMS.md)
 1. [流程指南](/Users/wangwenjie/project/archetype-admin-path/docs/init/WORKFLOW_GUIDE.md)
 2. [步骤编号指南](/Users/wangwenjie/project/archetype-admin-path/docs/init/STEP_NAMING_GUIDE.md)
 3. [Prompt 指南](/Users/wangwenjie/project/archetype-admin-path/docs/init/PROMPTS_GUIDE.md)
@@ -138,4 +138,4 @@
 
 TODO：
 
-- 统一转移到 [docs/PENDING_ITEMS.md](/Users/wangwenjie/project/archetype-admin-path/docs/PENDING_ITEMS.md)
+- 统一转移到 [docs/development_progress/PENDING_ITEMS.md](/Users/wangwenjie/project/archetype-admin-path/docs/development_progress/PENDING_ITEMS.md)

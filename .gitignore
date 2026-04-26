@@ -1,3 +1,4 @@
 runs/
 test-prd/
 runs-archive/
+.worktrees/

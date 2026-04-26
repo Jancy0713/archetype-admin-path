@@ -1,0 +1,28 @@
+artifact_type: freeze
+version: "1.0.0"
+status:
+  step: freeze
+  state: draft
+meta:
+  flow_id: contract
+  step_id: contract-04
+  artifact_id: ""
+  contract_id: ""
+  batch_id: ""
+  run_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+freeze_context:
+  review_path: ""
+  contract_spec_path: ""
+  rendered_paths: []
+  target_archive_root: ""
+frozen_artifact:
+  version_label: ""
+  summary: []
+  depends_on_contracts: []
+decision:
+  review_passed: false
+  ready_to_publish: false
+  reason: ""

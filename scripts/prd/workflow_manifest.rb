@@ -37,7 +37,7 @@ module PrdFlow
 
     HUMAN_GATE_RULES = [
       "`clarification` reviewer 通过后，默认必须停在 Human Confirmation Gate",
-      "`final_prd` 只有在 ready batch 的 handoff 字段完整且无 blocking_questions.p0 时才允许进入 contract",
+      "`final_prd` 只有在 ready batch 的 handoff 字段完整且无 blocking_questions.p0 时才允许生成 contract_handoff",
     ].freeze
 
     module_function

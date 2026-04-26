@@ -1,0 +1,47 @@
+---
+openapi: 3.1.0
+info:
+  title: Foundation Access
+  version: 0.1.0
+  summary: Foundation access API contract
+tags:
+- name: Account
+paths:
+  "/api/v1/accounts":
+    get:
+      operationId: listAccounts
+      summary: List existing accounts
+      tags:
+      - foundation
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccountList"
+      parameters:
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: page_size
+        in: query
+        required: true
+        schema:
+          type: integer
+components:
+  schemas:
+    AccountList:
+      type: object
+      properties: {}
+    Account:
+      type: object
+      properties: {}
+x-contract-run:
+  run_id: new-flow-sample
+  flow_id: batch-foundation-access
+  source_handoff: intake/contract-handoff.snapshot.yaml
+  source_contract_spec: contract/working/contract-03.contract_spec.yaml
+  source_review: contract/working/contract-04.review.yaml

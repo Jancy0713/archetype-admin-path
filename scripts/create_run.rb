@@ -6,6 +6,8 @@ require "date"
 require_relative "init/workflow_manifest"
 require_relative "prd/artifact_utils"
 require_relative "prd/workflow_manifest"
+require_relative "contract/workflow_manifest"
+require_relative "contract/progress_board"
 require_relative "progress_board"
 
 ROOT = File.expand_path("..", __dir__)
@@ -23,12 +25,13 @@ def prompt(label, default: nil, allow_empty: false)
 end
 
 def choose_flow(initial_flow = nil)
-  return initial_flow if %w[init prd].include?(initial_flow)
+  return initial_flow if %w[init prd contract].include?(initial_flow)
 
   loop do
     puts "请选择本次流程："
     puts "1. init"
     puts "2. prd"
+    puts "3. contract"
     print "> "
     input = $stdin.gets
     exit 1 if input.nil?
@@ -38,6 +41,8 @@ def choose_flow(initial_flow = nil)
       return "init"
     when "2", "prd"
       return "prd"
+    when "3", "contract"
+      return "contract"
     end
   end
 end
@@ -58,6 +63,14 @@ def parse_args(argv)
       options[:request_file] = args.shift
     when "--owner"
       options[:owner] = args.shift
+    when "--flow-id"
+      options[:flow_id] = args.shift
+    when "--handoff"
+      options[:handoff] = args.shift
+    when "--status"
+      options[:status] = args.shift
+    when "--dependencies"
+      options[:dependencies] = args.shift
     else
       warn "Unknown option: #{key}"
       exit 1
@@ -93,6 +106,8 @@ def normalize_progress_template(progress_path, flow)
     "## Inputs",
     "## Init Progress",
     "## PRD Progress",
+    "## Contract Progress",
+    "## Release",
     "## Decisions",
     "## Handoff Notes",
     "## Status Legend",
@@ -108,6 +123,8 @@ def normalize_progress_template(progress_path, flow)
       flow == "init"
     when "## PRD Progress"
       flow == "prd"
+    when "## Contract Progress", "## Release"
+      flow == "contract"
     else
       true
     end
@@ -232,14 +249,25 @@ def build_decisions_content
   MD
 end
 
-def build_handoff_content
-  <<~MD
-    # Handoff Notes
+def build_handoff_content(flow)
+  case flow
+  when "contract"
+    <<~MD
+      # Handoff Notes
 
-    - reviewer 必须由独立 reviewer 子 agent 或独立新上下文执行，主 agent 不得自己兼任 reviewer。
-    - `init-07` 用户确认通过后，不要继续复用 `init-01` 到 `init-07` 的长对话直接跑 `init-08`。
-    - 应先生成 `prompts/init-08-execution-prompt.md`，再新开一个干净上下文，把整段 prompt 交给新的执行代理。
-  MD
+      - contract 主执行 agent 只能执行到 `contract-03.contract_spec.yaml`，不得自审或自行 release。
+      - `contract-04.review.yaml` 必须由独立 reviewer 子 agent 生成；这不是人工 review。
+      - review 通过后，主流程再执行 `scripts/contract/review_complete.rb` 生成 `contract/release/` 正式产物。
+    MD
+  else
+    <<~MD
+      # Handoff Notes
+
+      - reviewer 必须由独立 reviewer 子 agent 或独立新上下文执行，主 agent 不得自己兼任 reviewer。
+      - `init-07` 用户确认通过后，不要继续复用 `init-01` 到 `init-07` 的长对话直接跑 `init-08`。
+      - 应先生成 `prompts/init-08-execution-prompt.md`，再新开一个干净上下文，把整段 prompt 交给新的执行代理。
+    MD
+  end
 end
 
 def build_prd_materials_readme
@@ -308,6 +336,34 @@ def build_prd_prompt(run_root, title)
   )
 end
 
+def build_contract_prompt(run_root, title, flow_id: nil, status: "ready", dependencies: "None")
+  template = File.read(File.join(ROOT, "docs/templates/autonomous-run-prompt.contract.template.md"))
+
+  # For contract, we need extra context from handoff if available
+  # Normally flow_id is determined from the run directory name if not provided
+  flow_id ||= File.basename(run_root).sub(/^contract-/, "")
+
+  # We'll use snapshots from intake/
+  handoff_yaml = "intake/contract-handoff.snapshot.yaml"
+  handoff_md = "intake/contract-handoff.snapshot.md"
+
+  # Status and dependencies should be read from the handoff if possible,
+  # but for the first prompt we can assume 'ready' if we are creating it
+  # Standard init_flow_run will fill these later.
+
+  replacements = {
+    "{{FLOW_ID}}" => flow_id,
+    "{{FLOW_TITLE}}" => title,
+    "{{RUN_ROOT}}" => run_root,
+    "{{STATUS}}" => status || "ready",
+    "{{DEPENDENCIES}}" => dependencies || "None",
+    "{{HANDOFF_YAML}}" => handoff_yaml,
+    "{{HANDOFF_MD}}" => handoff_md
+  }
+
+  replacements.reduce(template) { |content, (key, value)| content.gsub(key, value) }
+end
+
 def build_autonomous_prompt(flow:, template_path:, run_root:, first_step_id:, first_artifact:, first_review:, validate_command:, render_command:)
   template = File.read(template_path)
   replacements = {
@@ -335,7 +391,20 @@ def flow_command_cheat_sheet(flow, run_root)
     InitFlow::WorkflowManifest.command_cheat_sheet(run_root)
   when "prd"
     PrdFlow::WorkflowManifest.command_cheat_sheet(run_root)
+  when "contract"
+    "ruby scripts/contract/continue_run.rb #{run_root} <step_id>"
   end
+end
+
+def write_run_manifest(run_root, flow, run_id, flow_id: nil)
+  manifest_path = File.join(run_root, "run.yaml")
+  data = {
+    "flow" => flow,
+    "run_id" => run_id,
+    "flow_id" => flow_id || run_id.sub("#{flow}-", ""),
+    "created_at" => Time.now.iso8601
+  }
+  File.write(manifest_path, YAML.dump(data))
 end
 
 def update_progress_meta(progress_path, run_id:, owner:, flow:)
@@ -343,8 +412,16 @@ def update_progress_meta(progress_path, run_id:, owner:, flow:)
   initial_meta =
     if flow == "init"
       InitFlow::WorkflowManifest.initial_progress_meta
-    else
+    elsif flow == "prd"
       PrdFlow::WorkflowManifest.initial_progress_meta
+    else
+      {
+        "current_step_id" => "contract-01",
+        "overall_status" => "doing",
+        "current_goal" => "Start contract from intake handoff snapshot",
+        "next_agent_input" => "intake/contract-handoff.snapshot.yaml",
+        "next_expected_output" => "contract/working/contract-01.scope_intake.yaml"
+      }
     end
   replacements = {
     "- run_id:" => "- run_id: #{run_id}",
@@ -367,10 +444,19 @@ def update_progress_meta(progress_path, run_id:, owner:, flow:)
     replacement ? replacements.fetch(replacement) : line
   end
 
-  first_step_id = flow == "init" ? "`#{InitFlow::WorkflowManifest.first_step_id}`" : "`#{PrdFlow::WorkflowManifest.first_step_id}`"
+  first_step_id = case flow
+                  when "init" then "`#{InitFlow::WorkflowManifest.first_step_id}`"
+                  when "prd" then "`#{PrdFlow::WorkflowManifest.first_step_id}`"
+                  when "contract" then "`#{ContractFlow::WorkflowManifest.first_step_id}`"
+                  end
   File.write(progress_path, updated.join("\n") + "\n")
-  board = WorkflowProgressBoard::Board.new(progress_path)
-  board.update_row(first_step_id.delete("`"), status: "doing")
+  if flow == "contract"
+    board = ContractFlow::ProgressBoard::Board.new(progress_path)
+    board.update_step(first_step_id.delete("`"), status: "doing")
+  else
+    board = WorkflowProgressBoard::Board.new(progress_path)
+    board.update_row(first_step_id.delete("`"), status: "doing")
+  end
   board.save
 end
 
@@ -380,13 +466,27 @@ title = options[:title] || prompt("本次要做什么", default: flow == "init" 
 run_id = options[:run_id] || prompt("run id", default: default_run_id(title, flow))
 owner = options[:owner] || prompt("owner", default: ENV["USER"].to_s.empty? ? "unknown" : ENV["USER"])
 
-run_root = File.join(ROOT, "runs", run_id)
+base_runs_dir =
+  if flow == "contract" && ENV["CONTRACT_RUNS_ROOT"]
+    ENV["CONTRACT_RUNS_ROOT"]
+  elsif flow == "prd" && ENV["PRD_RUNS_ROOT"]
+    ENV["PRD_RUNS_ROOT"]
+  else
+    File.join(ROOT, "runs")
+  end
+
+run_root = File.expand_path(run_id, base_runs_dir)
 if File.exist?(run_root)
   warn "Run directory already exists: #{run_root}"
   exit 1
 end
 
-dirs = %w[raw raw/attachments init prd rendered progress prompts archive]
+dirs = %w[raw raw/attachments rendered progress prompts archive]
+if flow == "contract"
+  dirs += %w[intake contract/working contract/working/state contract/release]
+else
+  dirs += %w[init prd]
+end
 dirs.each { |dir| FileUtils.mkdir_p(File.join(run_root, dir)) }
 
 request_target = File.join(run_root, "raw/request.md")
@@ -406,7 +506,7 @@ copy_template(File.join(ROOT, "docs/templates/workflow-progress.template.md"), F
 normalize_progress_template(File.join(run_root, "progress/workflow-progress.md"), flow)
 update_progress_meta(File.join(run_root, "progress/workflow-progress.md"), run_id: run_id, owner: owner, flow: flow)
 write_file(File.join(run_root, "progress/decisions.md"), build_decisions_content)
-write_file(File.join(run_root, "progress/handoff-notes.md"), build_handoff_content)
+write_file(File.join(run_root, "progress/handoff-notes.md"), build_handoff_content(flow))
 
 case flow
 when "init"
@@ -418,8 +518,18 @@ when "prd"
   run_command("ruby", File.join(ROOT, "scripts/prd/init_artifact.rb"), "--step-id", PrdFlow::WorkflowManifest.first_step_id, PrdFlow::WorkflowManifest.first_artifact, artifact_path)
   write_prd_material_snapshots(run_root)
   prompt_content = build_prd_prompt(run_root, title)
+when "contract"
+  artifact_path = File.join(run_root, ContractFlow::WorkflowManifest.artifact_relative_path(ContractFlow::WorkflowManifest.first_step_id))
+  prompt_content = build_contract_prompt(
+    run_root,
+    title,
+    flow_id: options[:flow_id],
+    status: options[:status],
+    dependencies: options[:dependencies]
+  )
 end
 
+write_run_manifest(run_root, flow, run_id, flow_id: options[:flow_id])
 write_file(File.join(run_root, "prompts/run-agent-prompt.md"), prompt_content)
 
 puts "Created run workspace at #{run_root}"

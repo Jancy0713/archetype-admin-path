@@ -65,7 +65,8 @@ flowchart TD
     P03R --> P04["prd-04<br/>final_prd"]
     P04 --> P04V["validate"]
     P04V --> P04R["review"]
-    P04R --> C["Contract 设计"]
+    P04R --> C05["prd-05<br/>contract_handoff"]
+    C05 --> C["多个 Contract Flows"]
 ```
 
 ## 步骤职责
@@ -114,7 +115,7 @@ flowchart TD
 目标：
 
 - 汇总本轮范围、角色、资源、页面、流程、状态和约束
-- 输出可直接交给 `contract` 设计的最终输入索引，并拆成多个 batch
+- 输出可正式收口到 `contract_handoff` 的最终输入索引，并拆成多个 flows
 
 进入这一步前，默认应已经完成：
 
@@ -181,10 +182,39 @@ flowchart TD
 - `ruby scripts/prd/validate_artifact.rb final_prd runs/demo/prd-04.final_prd.yaml`
 - `ruby scripts/prd/init_artifact.rb --step final_prd_ready --step-id prd-04 review runs/demo/prd-04.review.yaml`
 
-### 第五步：进入 contract
+### 第五步：Contract Handoff
 
-只有当 `final_prd.decision.allow_contract_design=true` 时，才进入 `contract`。
-进入时应按 `final_prd.contract_execution.recommended_batch_order` 逐个选择 `ready_batches` 中的 batch，而不是把整份 final_prd 一次性喂给 contract。
+只有当 `final_prd.decision.allow_contract_design=true` 时，才进入 `Contract Handoff`。
+
+这一步的职责不是直接写 contract 内容，而是正式把一份 `final_prd` 拆成多个独立 contract flows，并生成 contract 层交接说明。
+
+这一步在当前轮次至少要正式落盘：
+
+- `runs/<prd-run-id>/contract_handoff/contract-handoff.index.yaml`
+- `runs/<prd-run-id>/contract_handoff/contract-handoff.md`
+- `runs/<prd-run-id>/contract_handoff/flows/01.<flow-id>.handoff.yaml`
+- `runs/<prd-run-id>/contract_handoff/flows/01.<flow-id>.handoff.md`
+- `runs/YYYY-MM-DD-contract-<flow-id>/prompts/run-agent-prompt.md` (在对应的标准 Run 工作区中)
+
+同时明确：
+
+- 它们的大致顺序
+- 它们的依赖关系
+- 当前应该先进入哪个 contract flow
+- 每个 contract flow 后续会各自产出一个独立 `swagger/openapi`
+
+当前主链最小收口约定：
+
+- `prd-04 review` 通过后，应通过 [scripts/prd/review_complete.rb](/Users/wangwenjie/project/archetype-admin-path/scripts/prd/review_complete.rb) 正式收口
+- 这个收口动作会正式生成 `contract_handoff/` 落盘结果，而不是只停留在概念说明
+- 当前正式口径只写阶段边界，不再把旧 `contract/` 落盘路径、旧 batch publish 结构或 generation bridge 文件当成默认主链事实
+- 交接产物应明确表达：
+  - 当前 PRD 拆出了多少个 contract
+  - 每个 contract 的顺序和依赖关系
+  - 当前先进入哪一个 contract flow
+- PRD progress board 的 `next_agent_input` 应直接指向当前批次的启动提示词 `runs/YYYY-MM-DD-contract-<flow-id>/prompts/run-agent-prompt.md`。
+- 单个 contract flow 的正式终点是独立 `openapi/swagger`
+- `develop` 是 `openapi/swagger` 之后的下游阶段，不再把 `contract -> generation` 写成默认主链
 
 ## 关键门禁
 
@@ -209,4 +239,4 @@ flowchart TD
 
 - `analysis.risk_analysis.blocking_gaps.p0` 不为空，不允许进入 `clarification`
 - `clarification` 中存在尚未收口的 `required` 级确认项，不允许进入 `execution_plan`
-- `final_prd.blocking_questions.p0` 不为空，不允许进入 `contract`
+- `final_prd.blocking_questions.p0` 不为空，不允许进入 `contract_handoff`

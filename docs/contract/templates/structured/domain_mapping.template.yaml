@@ -1,0 +1,63 @@
+artifact_type: domain_mapping
+version: "1.0.0"
+status:
+  step: domain_mapping
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-02
+  artifact_id: ""
+  contract_id: ""
+  batch_id: ""
+  run_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+mapping_basis:
+  scope_intake_path: ""
+  handoff_snapshot_path: ""
+  source_final_prd_path: ""
+  referenced_release_contracts: []
+  referenced_artifacts: []
+resource_map:
+  resources:
+    - name: ""
+      kind: ""
+      ownership: ""
+      summary: ""
+      shared_or_new: ""
+      related_views: []
+action_map:
+  actions:
+    - name: ""
+      resource_name: ""
+      action_type: ""
+      summary: ""
+      related_views: []
+state_and_enum_map:
+  state_groups:
+    - resource_name: ""
+      states_defined_here: []
+      shared_states: []
+      enums_defined_here: []
+      shared_enums: []
+access_map:
+  roles: []
+  permission_points: []
+  tenant_rules: []
+consumer_view_map:
+  views:
+    - name: ""
+      view_type: ""
+      goal: ""
+      primary_resources: []
+      primary_actions: []
+reference_plan:
+  depends_on_modules: []
+  symbol_references: []
+  definitions_to_finalize_in_spec: []
+decision:
+  allow_contract_spec: false
+  reason: ""

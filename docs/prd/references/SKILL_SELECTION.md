@@ -41,7 +41,7 @@
 
 原因：
 
-- 当前仓库已经把 `final_prd` 定义成进入 contract 的可信输入
+- 当前仓库已经把 `final_prd` 定义成生成 `contract_handoff` 的可信输入
 - 一旦 `final_prd` 稳定，`to-issues` 很适合把 PRD 或执行计划拆成可领取的垂直切片 issue
 
 当前建议落点：

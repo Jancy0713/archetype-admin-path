@@ -1,0 +1,105 @@
+---
+artifact_type: contract_spec
+version: 1.0.0
+status:
+  step: contract_spec
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-03
+  artifact_id: contract-03.contract_spec
+  contract_id: batch-foundation-access
+  batch_id: batch-foundation-access
+  run_id: 2026-04-26-contract-batch-foundation-access
+  source_paths: []
+  owner: ''
+  updated_at: '2026-04-26T03:38:14Z'
+spec_scope:
+  summary: Foundation access API contract
+  modules_in_scope:
+  - foundation-access
+  pages_in_scope: []
+  resources_in_scope:
+  - Account
+  actions_in_scope:
+  - listAccounts
+  out_of_scope: []
+shared_references:
+  depends_on_contracts: []
+  reused_definitions: []
+  local_extensions: []
+resource_contracts:
+  resources:
+  - name: Account
+    purpose: Represent access account
+    ownership: foundation
+    fields:
+    - id
+    - name
+    states:
+    - active
+    constraints:
+    - id required
+    references: []
+consumer_views:
+  views:
+  - name: AccessList
+    view_type: table
+    goal: List accounts
+    consumers:
+    - admin-ui
+    required_resources:
+    - Account
+    required_fields:
+    - id
+    - name
+    required_actions:
+    - listAccounts
+query_and_command_semantics:
+  queries:
+  - name: listAccounts
+    applies_to: Account
+    inputs:
+    - page
+    - page_size
+    behavior:
+    - returns paginated accounts
+  commands:
+  - name: ''
+    applies_to: ''
+    inputs: []
+    effects: []
+access_and_tenant_rules:
+  roles:
+  - admin
+  tenant_rules: []
+  view_access_rules: []
+validation_and_error_semantics:
+  validations:
+  - page_size must be positive
+  error_cases:
+  - 403 forbidden
+  empty_and_failure_states: []
+  automation_and_ai: []
+api_surface:
+  endpoints:
+  - operation_id: listAccounts
+    method: GET
+    path: /api/v1/accounts
+    summary: List existing accounts
+    tags:
+    - foundation
+    request:
+      query:
+      - name: page
+        schema: integer
+      - name: page_size
+        schema: integer
+    response:
+      status: 200
+      schema: AccountList
+decision:
+  allow_review: true
+  reason: spec ready

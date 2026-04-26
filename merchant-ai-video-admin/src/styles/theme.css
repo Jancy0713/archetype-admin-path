@@ -1,0 +1,71 @@
+:root {
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "SFMono-Regular", "JetBrains Mono", monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius: var(--radius-md);
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 20px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.16);
+
+  --text-xs: 12px;
+  --text-xs-line-height: 18px;
+  --text-sm: 14px;
+  --text-sm-line-height: 22px;
+  --text-md: 16px;
+  --text-md-line-height: 24px;
+  --text-lg: 20px;
+  --text-lg-line-height: 28px;
+  --text-xl: 24px;
+  --text-xl-line-height: 32px;
+
+  --surface: #f8fafc;
+  --surface-raised: #ffffff;
+  --surface-muted: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-default: #e2e8f0;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+
+  --background: var(--surface);
+  --foreground: var(--text-primary);
+  --card: var(--surface-raised);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: #eff6ff;
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-secondary);
+  --accent-foreground: #eff6ff;
+  --destructive: var(--danger);
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --ring: rgba(37, 99, 235, 0.3);
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: #eff6ff;
+  --sidebar-accent: #eff6ff;
+  --sidebar-accent-foreground: var(--accent);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: rgba(37, 99, 235, 0.24);
+}

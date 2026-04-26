@@ -42,7 +42,23 @@
 | `prd-01` | `analysis` | `todo` | `1` | `raw/request.md` | `prd/prd-01.analysis.yaml` | `prd/prd-01.review.yaml` | `not_needed` | `prd-02` |
 | `prd-02` | `clarification` | `todo` | `1` | `prd/prd-01.analysis.yaml` | `prd/prd-02.clarification.yaml` | `prd/prd-02.review.yaml` | `required` | `prd-03` |
 | `prd-03` | `execution_plan` | `todo` | `1` | `prd/prd-02.clarification.yaml` | `prd/prd-03.execution_plan.yaml` | `prd/prd-03.review.yaml` | `not_needed` | `prd-04` |
-| `prd-04` | `final_prd` | `todo` | `1` | `prd/prd-03.execution_plan.yaml` | `prd/prd-04.final_prd.yaml` | `prd/prd-04.review.yaml` | `optional` | `contract` |
+| `prd-04` | `final_prd` | `todo` | `1` | `prd/prd-03.execution_plan.yaml` | `prd/prd-04.final_prd.yaml` | `prd/prd-04.review.yaml` | `optional` | `contract_handoff` |
+
+## Contract Progress
+
+| step_id | status | artifact | rendered | notes |
+| --- | --- | --- | --- | --- |
+| `contract-01` | `todo` | `contract/working/contract-01.scope_intake.yaml` | `rendered/contract-01.scope_intake.md` | `` |
+| `contract-02` | `todo` | `contract/working/contract-02.domain_mapping.yaml` | `rendered/contract-02.domain_mapping.md` | `` |
+| `contract-03` | `todo` | `contract/working/contract-03.contract_spec.yaml` | `rendered/contract-03.contract_spec.md` | `independent review gate` |
+| `contract-04` | `todo` | `contract/working/contract-04.review.yaml` | `rendered/contract-04.review.md` | `independent review gate` |
+
+## Release
+
+- openapi: `contract/release/openapi.yaml`
+- summary: `contract/release/openapi.summary.md`
+- develop_handoff: `contract/release/develop-handoff.md`
+
 
 ## Decisions
 

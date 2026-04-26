@@ -1,0 +1,35 @@
+---
+artifact_type: review
+version: 1.0.0
+status:
+  step: contract_spec_ready
+  attempt: 1
+  max_retry: 2
+meta:
+  subject_type: contract_spec
+  flow_id: contract
+  step_id: contract-04
+  artifact_id: contract-04.review
+  contract_id: batch-foundation-access
+  batch_id: batch-foundation-access
+  subject_path: contract-03.contract_spec.yaml
+  reviewer: smoke-reviewer
+  updated_at: '2026-04-26T03:38:15Z'
+review_scope:
+  handoff_snapshot_path: ../../intake/contract-handoff.snapshot.yaml
+  scope_intake_path: contract-01.scope_intake.yaml
+  domain_mapping_path: contract-02.domain_mapping.yaml
+  checklist_path: ../../../../reviewer/checklists/contract_spec_ready.md
+findings:
+  issues: []
+  missing_info: []
+  p0: []
+decision:
+  has_blocking_issue: false
+  allow_release: true
+  need_human_escalation: false
+  suggested_return_step: ''
+  reason: ready for release
+required_revisions: []
+notes:
+- single flow release smoke

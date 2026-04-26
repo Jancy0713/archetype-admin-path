@@ -1,0 +1,6 @@
+---
+review_step: contract_spec_ready
+reviewer_prompt: "/Users/wangwenjie/project/archetype-admin-path/docs/contract/prompts/REVIEWER_PROMPT.md"
+reviewer_workflow: "/Users/wangwenjie/project/archetype-admin-path/docs/contract/reviewer/common/REVIEWER_WORKFLOW.md"
+reviewer_checklist: "/Users/wangwenjie/project/archetype-admin-path/docs/contract/reviewer/checklists/contract_spec_ready.md"
+review_template: "/Users/wangwenjie/project/archetype-admin-path/docs/contract/templates/structured/review.template.yaml"

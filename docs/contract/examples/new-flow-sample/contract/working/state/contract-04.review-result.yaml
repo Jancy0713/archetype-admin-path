@@ -1,0 +1,17 @@
+---
+flow_id: contract
+step_id: contract-04
+status: passed
+batch_id: batch-foundation-access
+contract_id: batch-foundation-access
+run_id: 2026-04-26-contract-batch-foundation-access
+review_path: contract/working/contract-04.review.yaml
+subject_path: contract/working/contract-03.contract_spec.yaml
+review_sha256: 2df285746ce9f5c74f14b21c178a54d9b328ffc71f2edfccfa0b5e104c01628f
+subject_sha256: a16859b3178f9af2b6572b429fc2b462e81037eace0e852856d8348b09d9e378
+rendered_subject_path: rendered/contract-03.contract_spec.md
+rendered_review_path: rendered/contract-04.review.md
+reviewed_at: '2026-04-26T03:38:15Z'
+next_action: release_ready
+next_command: 
+released_at: '2026-04-26T15:46:39Z'

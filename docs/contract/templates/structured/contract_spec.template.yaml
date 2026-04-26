@@ -1,0 +1,86 @@
+artifact_type: contract_spec
+version: "1.0.0"
+status:
+  step: contract_spec
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-03
+  artifact_id: ""
+  contract_id: ""
+  batch_id: ""
+  run_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+spec_scope:
+  summary: ""
+  modules_in_scope: []
+  pages_in_scope: []
+  resources_in_scope: []
+  actions_in_scope: []
+  out_of_scope: []
+shared_references:
+  depends_on_contracts: []
+  reused_definitions: []
+  local_extensions: []
+resource_contracts:
+  resources:
+    - name: ""
+      purpose: ""
+      ownership: ""
+      fields: []
+      states: []
+      constraints: []
+      references: []
+consumer_views:
+  views:
+    - name: ""
+      view_type: ""
+      goal: ""
+      consumers: []
+      required_resources: []
+      required_fields: []
+      required_actions: []
+query_and_command_semantics:
+  queries:
+    - name: ""
+      applies_to: ""
+      inputs: []
+      behavior: []
+  commands:
+    - name: ""
+      applies_to: ""
+      inputs: []
+      effects: []
+access_and_tenant_rules:
+  roles: []
+  tenant_rules: []
+  view_access_rules: []
+validation_and_error_semantics:
+  validations: []
+  error_cases: []
+  empty_and_failure_states: []
+implementation_notes_for_consumers:
+  frontend: []
+  backend: []
+  automation_and_ai: []
+api_surface:
+  endpoints:
+    - operation_id: ""
+      method: "" # GET, POST, PUT, DELETE, PATCH
+      path: ""
+      summary: ""
+      tags: []
+      request:
+        query: [] # { name: "", schema: "" }
+        body: "" # schema name
+      response:
+        status: 200
+        schema: "" # schema name
+      errors: [] # { status: 4xx, code: "", message: "" }
+decision:
+  allow_review: false
+  reason: ""

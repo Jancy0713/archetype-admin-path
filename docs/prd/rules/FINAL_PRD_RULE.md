@@ -2,16 +2,16 @@
 
 ## 目标
 
-`final_prd` 是当前进入 `contract` 的唯一正式 PRD 索引输入，但它内部必须拆成多个可独立交接的 `prd_batches`。
+`final_prd` 是当前生成 `contract_handoff` 的唯一正式 PRD 索引输入，但它内部必须拆成多个可独立交接的 `prd_batches`。
 
 ## 基本原则
 
 1. 汇总已确认范围，不重开新的分析分支。
 2. 不把未确认信息写成既定事实。
-3. 只保留真正阻塞 contract 的 `blocking_questions.p0`，不要把已确认延后项写成剩余问题。
+3. 只保留真正阻塞 `contract_handoff` 的 `blocking_questions.p0`，不要把已确认延后项写成剩余问题。
 4. `prd_batches` 必须按耦合关系、依赖顺序和单批体量限制完成拆分。
 5. 每个 ready batch 的 `contract_handoff` 必须明确说明下游能做什么、不能假设什么。
-6. 如果某个 batch 允许进入 `contract`，它的 `contract_scope`、`priority_modules`、`required_contract_views`、`do_not_assume` 都必须非空。
+6. 如果某个 batch 允许进入 `contract_handoff`，它的 `contract_scope`、`priority_modules`、`required_contract_views`、`do_not_assume` 都必须非空。
 
 ## 正确产出
 
@@ -28,7 +28,7 @@
 9. contract execution
 10. prd batches
 
-## 进入 contract 的条件
+## 进入 contract_handoff 的条件
 
 只有当：
 
@@ -40,4 +40,4 @@
 - 每个 `ready_batches` 对应的 `prd_batches[*].contract_handoff.required_contract_views` 非空
 - 每个 `ready_batches` 对应的 `prd_batches[*].contract_handoff.do_not_assume` 非空
 
-才允许进入 contract。
+才允许生成 `contract_handoff`，并为后续 `contract` 提供单个 flow handoff 输入。

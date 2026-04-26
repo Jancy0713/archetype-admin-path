@@ -1,0 +1,41 @@
+artifact_type: scope_intake
+version: "1.0.0"
+status:
+  step: scope_intake
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-01
+  artifact_id: ""
+  contract_id: ""
+  batch_id: ""
+  run_id: ""
+  source_paths: []
+  owner: ""
+  updated_at: ""
+intake_basis:
+  handoff_snapshot_path: ""
+  handoff_summary_path: ""
+  source_final_prd_path: ""
+  inherited_decisions: []
+  referenced_artifacts: []
+batch_scope:
+  goal: ""
+  in_scope_modules: []
+  in_scope_pages: []
+  in_scope_resources: []
+  in_scope_actions: []
+  out_of_scope: []
+dependencies:
+  prerequisite_flows: []
+  referenced_release_contracts: []
+  unresolved_dependencies: []
+do_not_assume: []
+blocking_items:
+  p0: []
+  followups: []
+decision:
+  allow_domain_mapping: false
+  reason: ""

@@ -9,4 +9,4 @@
 
 ## 目标
 
-沉淀当前唯一可信的 contract 输入索引，并把下游工作拆成多个可独立进入 contract 的 PRD batch。
+沉淀当前唯一可信的 `contract_handoff` 输入索引，并把下游工作拆成多个可独立交接的 contract flows。

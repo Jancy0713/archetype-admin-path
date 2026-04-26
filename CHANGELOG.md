@@ -1,22 +1,44 @@
 # Changelog
 
-## 2.1.0 (in progress)
+## 2.1.0 - 2026-04-27
 
-- 为 `prd` 流程补齐 `2.1.0` 结构治理入口：新增按步骤组织的 prompt 索引、reviewer 材料索引与 step materials 索引，并将 `README / PROMPTS_GUIDE / WORKFLOW_GUIDE` 切到步骤化入口
-- 新增 `analysis / clarification / execution_plan / final_prd` 各自独立的 `STEP_PROMPT.md`，避免继续把主流程约束堆在单一总 prompt 中
-- 新增 reviewer 分拆资料：`reviewer/common/REVIEWER_WORKFLOW.md` 与 4 份阶段 checklist 独立落盘，使 reviewer 输入组织和阶段专项检查项可直接复用
-- 新增 `scripts/prd/materials.rb` 与 `artifact_utils.rb` 中的材料映射，支持按 `artifact` 或 `review_step` 查询正式 step prompt、rule、template、reviewer workflow 与 checklist
-- 为 `create_run.rb` 补充 PRD run 内的 `prompts/materials/` 快照，固定当前 run 使用的 artifact/review 材料入口，减少运行时手工查找全局路径
-- 为 reviewer 初始化补充包装脚本 `scripts/prd/init_review_context.rb`，可一次性生成 `review.yaml`、回填 `meta.subject_path` 并落 reviewer 材料快照，支持 `--force` 重建同一路径
-- 为 PRD 流程补充 `scripts/prd/workflow_manifest.rb`，统一维护 4 个正式步骤的 artifact、review step、render 路径、command cheat sheet 和初始进度元信息，并让 `create_run.rb` 改为从 manifest 读取运行信息
-- 新增 `scripts/prd/continue_run.rb`，支持按 `artifact / review / render` 三种模式继续推进 PRD run，并同步更新进度板
-- 新增 `scripts/prd/finalize_step.rb`，把单步收口固定为 `validate -> init_review_context -> render`，并将当前步骤状态推进到 `review`
-- 新增 `scripts/prd/review_complete.rb`，消费独立 reviewer 产物，根据 `allow_next_step / has_blocking_issue / need_human_escalation` 自动把步骤写成 `done / confirmed / blocked`
-- 新增 `scripts/prd/confirm_clarification.rb`，把 Human Confirmation Gate 正式脚本化：回写 `human_confirmation`、基于 `open_questions.p0` 决定 `allow_execution_plan`，并把 `prd-02` 状态推进为 `confirmed` 或 `blocked`
-- 收紧 `final_prd -> contract` 门禁：当 `decision.allow_contract_design=true` 时，`contract_handoff.contract_scope / priority_modules / required_contract_views / do_not_assume` 现在都必须非空且不得重复
-- 重写 `scripts/prd/render_artifact.rb` 的 Markdown 呈现方式，使 `analysis / clarification / execution_plan / final_prd / review` 更适合人工通读；同时修正对当前 Ruby 版本的兼容性问题
-- 新增 `docs/prd/examples/2.0/happy-path-run` 正式样例，覆盖四步主产物和 review 样例，并已用于 `validate / render` 回归
-- 当前 `2.1.0` 仍处于 in progress：主链路脚手架与 run 执行能力已补齐，但完整真实 run 冒烟验证与最终版本切换尚未完成，因此仓库版本暂不从 `2.0.0` 升级
+本版本把仓库从 `init -> prd` 的需求生成链路，推进到可执行的 `init -> prd -> contract_handoff -> contract -> openapi/swagger -> develop` 主链。
+
+### Added
+
+- 新增 `contract` 正式流程文档、结构化模板、规则、step prompts、reviewer prompts、reviewer checklists 和 workflow guide。
+- 新增 `scripts/contract/*` 执行脚本，覆盖 artifact 初始化、校验、渲染、continue/finalize、review complete、release 构建、handoff 生成、baseline settlement 和分层 smoke。
+- 新增 `prd-05 contract_handoff` 主链接点：`prd-04 final_prd` review 通过后，可拆分多个独立 contract flows，并初始化标准 contract run。
+- 新增标准 contract run 结构：`raw/`、`prompts/`、`progress/`、`intake/`、`contract/working/`、`contract/release/`、`rendered/` 和 `archive/`。
+- 新增 contract release 包：`contract.yaml`、`contract.summary.md`、`openapi.yaml`、`openapi.summary.md` 和 `develop-handoff.md`。
+- 新增独立 review gate：主 contract agent 只能执行到 `contract-03`，`contract-04.review.yaml` 必须由独立 reviewer 子 agent 生成，review 通过后才能 release。
+- 新增日期化 contract run 命名：`runs/YYYY-MM-DD-contract-<flow-id>`，并在 `prd-05` 输出中暴露实际工作区和启动提示词。
+- 新增 `baselines/` 说明和 `settle_baseline.rb`，为 develop 验证后的稳定合同沉淀预留正式位置。
+- 新增 `docs/development_progress/` 统一承载开发推进记录、pending items、contract-new 01-09 计划和历史 contract/generation 材料。
+- 新增 `merchant-ai-video-admin` 前端基础项目，包括 React/Vite 基座、主题 token、基础组件、应用壳层、平台能力占位和项目约定文档。
+- 新增 contract-new Step 8 / Step 9+ 规划：后续补强 OpenAPI schema 完整性、multi-flow develop input index 和 mock 策略。
+
+### Changed
+
+- `create_run.rb` 支持 `contract` flow，交互菜单、目录结构、progress board、run prompt 和 handoff notes 会按 flow 类型生成。
+- PRD 流程补齐步骤化入口：`analysis / clarification / execution_plan / final_prd` 拆出独立 step prompt、reviewer 材料和 manifest。
+- PRD run 新增 `prompts/materials/` 快照，固定每个 run 使用的 artifact/review 材料入口。
+- `scripts/prd/review_complete.rb` 接入 `contract_handoff` 生成，并把 `prd-05` 完成回报固定为“下一步建议 -> 功能批次 -> 关键材料 -> 异常偏差”。
+- `docs/contract/WORKFLOW_GUIDE.md` 明确 develop 只消费 `contract/release/`，不得读取 `contract/working/` 过程态。
+- `docs/development_progress/README.md`、`PENDING_ITEMS.md` 和 `DEVELOPMENT_CONTEXT_PRINCIPLES.md` 替代旧的散落式进度材料。
+
+### Fixed
+
+- 修正 `contract` 旧文案中“Reviewer 或快速 release”的误导，明确必须启动独立 reviewer 子 agent。
+- 修正 `project-conventions.md` 从 PRD 到 contract handoff 的路径继承，避免 contract 执行时靠 AI 自己猜真实项目路径。
+- 禁止 contract release 回写上游 PRD run；PRD run 在 `prd-05` 后作为只读事实来源。
+- 清理旧 `generation` 主链残留口径，当前正式主链统一为 `contract -> openapi/swagger -> develop`。
+- 修正 contract run 的 handoff notes，避免混入 `init-07/init-08` 旧流程说明。
+
+### Known Follow-ups
+
+- Step 8 计划补强 OpenAPI schema 完整性，避免 `components.schemas` 只是空 object 壳。
+- Step 9+ 计划补 multi-flow develop input index，并在后续测试/mock 阶段设计 OpenAPI 驱动的 mock 数据与 mock/real API 切换方案。
 
 ## 1.0.3
 

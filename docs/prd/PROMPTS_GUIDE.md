@@ -27,14 +27,14 @@ reviewer 可在每一步后启用。
 7. 用 [REVIEWER_PROMPT.md](/Users/wangwenjie/project/archetype-admin-path/docs/prd/prompts/REVIEWER_PROMPT.md) + 当前阶段 reviewer checklist 生成 reviewer 结果
 8. 超过 retry 上限后升级给人
 9. `clarification` 通过后必须走 Human Confirmation Gate
-10. `final_prd` 通过后才进入 contract
+10. `final_prd` 通过后先生成 `contract_handoff`，再从单个 flow handoff 进入 contract
 
 ## 当前注意事项
 
 1. YAML 是唯一主输出。
 2. Markdown 只是展示层。
 3. `clarification` 默认必须人工确认。
-4. `final_prd` 是当前进入 contract 的唯一正式输入。
+4. `final_prd` 是当前生成 `contract_handoff` 的唯一正式输入；后续 contract 默认消费单个 flow handoff。
 5. reviewer 必须由独立 reviewer 子 agent 或独立新上下文执行，主 agent 不得自己兼任 reviewer。
 
 ## 当前 prompt 组织

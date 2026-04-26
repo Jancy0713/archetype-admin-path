@@ -1,0 +1,44 @@
+---
+artifact_type: scope_intake
+version: 1.0.0
+status:
+  step: scope_intake
+  attempt: 1
+  max_retry: 2
+  ready_for_next: false
+meta:
+  flow_id: contract
+  step_id: contract-01
+  artifact_id: contract-01.scope_intake
+  contract_id: batch-foundation-access
+  batch_id: batch-foundation-access
+  run_id: 2026-04-26-contract-batch-foundation-access
+  source_paths: []
+  owner: ''
+  updated_at: '2026-04-26T03:38:14Z'
+intake_basis:
+  handoff_snapshot_path: "../../intake/contract-handoff.snapshot.yaml"
+  handoff_summary_path: "../../intake/contract-handoff.snapshot.md"
+  source_final_prd_path: "../../../../runs/2026-04-26-ai-init-prd-final/prd/prd-04.final_prd.yaml"
+  inherited_decisions: []
+  referenced_artifacts: []
+batch_scope:
+  goal: Foundation access contract
+  in_scope_modules:
+  - foundation-access
+  in_scope_pages: []
+  in_scope_resources: []
+  in_scope_actions: []
+  out_of_scope: []
+dependencies:
+  prerequisite_flows: []
+  referenced_release_contracts: []
+  unresolved_dependencies: []
+do_not_assume:
+- Do not assume unsupported tenant scope
+blocking_items:
+  p0: []
+  followups: []
+decision:
+  allow_domain_mapping: true
+  reason: scope ready
